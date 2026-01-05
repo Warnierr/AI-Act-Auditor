@@ -184,7 +184,7 @@ export default function AssessmentWizard() {
                                             placeholder={t.wizard.productPlaceholder}
                                             value={formData.name}
                                             onChange={handleChange}
-                                            className="h-12 text-base border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
+                                            className="h-12 text-base border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 text-slate-900 bg-white placeholder:text-slate-400"
                                         />
                                     </div>
                                     <div className="grid gap-3">
@@ -196,7 +196,7 @@ export default function AssessmentWizard() {
                                             id="description"
                                             name="description"
                                             placeholder={t.wizard.overviewPlaceholder}
-                                            className="min-h-[120px] resize-none text-base border-slate-200 focus:border-blue-500"
+                                            className="min-h-[120px] resize-none text-base border-slate-200 focus:border-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
                                             value={formData.description}
                                             onChange={handleChange}
                                         />
@@ -212,7 +212,7 @@ export default function AssessmentWizard() {
                                             id="intended_purpose"
                                             name="intended_purpose"
                                             placeholder={t.wizard.purposePlaceholder}
-                                            className="min-h-[100px] resize-none text-base border-slate-200 focus:border-blue-500"
+                                            className="min-h-[100px] resize-none text-base border-slate-200 focus:border-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
                                             value={formData.intended_purpose}
                                             onChange={handleChange}
                                         />
@@ -261,7 +261,7 @@ export default function AssessmentWizard() {
                                             placeholder={t.wizard.domainPlaceholder}
                                             value={formData.domain}
                                             onChange={handleChange}
-                                            className="h-12 text-base border-slate-200 focus:border-blue-500"
+                                            className="h-12 text-base border-slate-200 focus:border-blue-500 text-slate-900 bg-white placeholder:text-slate-400"
                                         />
                                         <div className="flex items-start gap-2 bg-blue-50 p-3 rounded-lg text-xs text-blue-700">
                                             <Info className="h-4 w-4 shrink-0 mt-0.5" />
