@@ -145,23 +145,14 @@ export default function Home() {
                                 </Button>
                             </motion.div>
 
-                            {/* Social proof */}
                             <motion.div variants={fadeInUp} className="flex flex-col items-center gap-4 pt-8">
-                                <div className="flex -space-x-3">
-                                    {[1, 2, 3, 4, 5].map((i) => (
-                                        <div key={i} className="w-10 h-10 rounded-full bg-muted border-2 border-background flex items-center justify-center text-xs font-bold text-muted-foreground shadow-sm">
-                                            {String.fromCharCode(64 + i)}
-                                        </div>
-                                    ))}
-                                </div>
                                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                     <div className="flex items-center gap-0.5">
                                         {[1, 2, 3, 4, 5].map((i) => (
                                             <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
                                         ))}
                                     </div>
-                                    <span className="font-semibold text-foreground">500+</span>
-                                    <span>{locale === 'fr' ? 'audits réalisés' : 'audits completed'}</span>
+                                    <span className="font-semibold text-foreground">{locale === 'fr' ? 'Gratuit & Open Source' : 'Free & Open Source'}</span>
                                 </div>
                             </motion.div>
                         </motion.div>
@@ -175,7 +166,7 @@ export default function Home() {
                             {[
                                 { value: "2min", label: locale === 'fr' ? "Temps moyen d'audit" : "Average audit time", icon: Clock },
                                 { value: "100%", label: locale === 'fr' ? "Annexe III couverte" : "Annex III covered", icon: FileText },
-                                { value: "500+", label: locale === 'fr' ? "Audits réalisés" : "Audits completed", icon: Users },
+                                { value: "Open", label: locale === 'fr' ? "Source & Gratuit" : "Source & Free", icon: Users },
                                 { value: "FR/EU", label: locale === 'fr' ? "Conformité locale" : "Local compliance", icon: Building2 },
                             ].map((stat, i) => (
                                 <motion.div
