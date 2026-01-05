@@ -31,15 +31,76 @@ export function AdvisorChat({ systemData, riskLevel, locale }: AdvisorChatProps)
     }, [messages])
 
     useEffect(() => {
-        // Welcome message
-        setMessages([{
-            role: "assistant",
-            content: locale === 'fr'
-                ? "👋 Bonjour ! Je suis votre conseiller IA Act. Je peux vous aider à comprendre vos obligations et répondre à vos questions sur la conformité. Posez-moi n'importe quelle question !"
-                : "👋 Hello! I'm your AI Act advisor. I can help you understand your obligations and answer questions about compliance. Ask me anything!",
-            sources: []
-        }])
-    }, [locale])
+        // Auto-send audit results to AI for personalized advice
+        const sendAuditSummary = async () => {
+            if (!systemData || !riskLevel) return;
+
+            // Create a summary message from the audit data
+            const summaryQuestion = locale === 'fr'
+                ? `Voici le résumé de mon audit AI Act :
+- Domaine : ${systemData.domain || 'Non spécifié'}
+- Finalité : ${systemData.intended_purpose || 'Non spécifiée'}
+- Niveau de risque détecté : ${riskLevel}
+- Biométrie : ${systemData.is_biometric ? 'Oui' : 'Non'}
+- Infrastructure critique : ${systemData.is_critical_infrastructure ? 'Oui' : 'Non'}
+- Composant de sécurité : ${systemData.is_safety_component ? 'Oui' : 'Non'}
+
+Peux-tu me donner des conseils personnalisés basés sur ces résultats ? Quelles sont les prochaines étapes concrètes que je dois suivre ?`
+                : `Here is my AI Act audit summary:
+- Domain: ${systemData.domain || 'Not specified'}
+- Purpose: ${systemData.intended_purpose || 'Not specified'}
+- Detected risk level: ${riskLevel}
+- Biometrics: ${systemData.is_biometric ? 'Yes' : 'No'}
+- Critical infrastructure: ${systemData.is_critical_infrastructure ? 'Yes' : 'No'}
+- Safety component: ${systemData.is_safety_component ? 'Yes' : 'No'}
+
+Can you give me personalized advice based on these results? What are the concrete next steps I should follow?`;
+
+            // Show the user's message first
+            const userMessage: ChatMessage = {
+                role: "user",
+                content: summaryQuestion
+            };
+            setMessages([userMessage]);
+            setLoading(true);
+
+            try {
+                const response = await askAdvisor({
+                    question: summaryQuestion,
+                    system_data: systemData,
+                    risk_level: riskLevel,
+                    language: locale
+                });
+
+                // Add contact info at the end of the AI response
+                const contactInfo = locale === 'fr'
+                    ? `\n\n---\n📞 **Pour un accompagnement personnalisé :**\n- Site : [kenshu.dev](https://kenshu.dev)\n- Email : contact@kenshu.dev\n- Consultez également notre page d'audit pour plus de détails sur vos obligations.`
+                    : `\n\n---\n📞 **For personalized guidance:**\n- Website: [kenshu.dev](https://kenshu.dev)\n- Email: contact@kenshu.dev\n- Also check our audit page for more details on your obligations.`;
+
+                const assistantMessage: ChatMessage = {
+                    role: "assistant",
+                    content: response.answer + contactInfo,
+                    sources: response.sources
+                };
+
+                setMessages(prev => [...prev, assistantMessage]);
+            } catch (err: any) {
+                console.error("Auto-advice error:", err);
+                const errorMessage: ChatMessage = {
+                    role: "assistant",
+                    content: locale === 'fr'
+                        ? "👋 Bonjour ! Je suis votre conseiller IA Act. Je n'ai pas pu charger les conseils automatiquement, mais vous pouvez me poser vos questions !"
+                        : "👋 Hello! I'm your AI Act advisor. Couldn't load automatic advice, but you can ask me your questions!",
+                    sources: []
+                };
+                setMessages(prev => [...prev, errorMessage]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        sendAuditSummary();
+    }, [systemData, riskLevel, locale])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -140,8 +201,8 @@ export function AdvisorChat({ systemData, riskLevel, locale }: AdvisorChatProps)
 
                             <div className={`max-w-[80%] ${msg.role === 'user' ? 'order-first' : ''}`}>
                                 <div className={`rounded-2xl px-4 py-3 ${msg.role === 'user'
-                                        ? 'bg-blue-600 text-white'
-                                        : 'bg-slate-100 text-slate-800 border border-slate-200'
+                                    ? 'bg-blue-600 text-white'
+                                    : 'bg-slate-100 text-slate-800 border border-slate-200'
                                     }`}>
                                     <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                                 </div>
