@@ -3,7 +3,7 @@ from io import BytesIO
 from jinja2 import Environment, FileSystemLoader
 import os
 from datetime import datetime
-from backend.core.models import AISystemInput, AnalysisResult
+from core.models import AISystemInput, AnalysisResult
 
 class PDFGenerator:
     def __init__(self):

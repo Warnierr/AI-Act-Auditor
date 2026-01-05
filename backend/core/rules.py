@@ -1,7 +1,7 @@
 import yaml
 import os
 from typing import List, Dict
-from backend.core.models import AISystemInput, AnalysisResult, RiskLevel, MatchedRule
+from core.models import AISystemInput, AnalysisResult, RiskLevel, MatchedRule
 
 TRANSLATIONS = {
     "en": {

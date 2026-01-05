@@ -5,7 +5,7 @@ Uses Claude (Anthropic or OpenRouter) for intelligent, context-aware recommendat
 
 import os
 from anthropic import Anthropic
-from backend.core.articles_db import get_relevant_context, search_articles
+from core.articles_db import get_relevant_context, search_articles
 
 # Initialize Anthropic client
 client = None
