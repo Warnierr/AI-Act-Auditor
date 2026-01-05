@@ -106,7 +106,7 @@ export default function AssessmentWizard() {
                         <div className="bg-gradient-to-br from-blue-600 to-indigo-600 p-2 rounded-xl shadow-lg group-hover:shadow-xl transition-shadow">
                             <Shield className="h-5 w-5 text-white" />
                         </div>
-                        <span className="font-bold text-lg">AI Act Auditor</span>
+                        <span className="font-bold text-lg text-slate-900">AI Act Auditor</span>
                     </Link>
 
                     <div className="flex items-center gap-4">
@@ -169,12 +169,12 @@ export default function AssessmentWizard() {
                                             {t.wizard.step1Title}
                                         </Badge>
                                     </div>
-                                    <CardTitle className="text-2xl font-bold">{t.wizard.identity}</CardTitle>
+                                    <CardTitle className="text-2xl font-bold text-slate-900">{t.wizard.identity}</CardTitle>
                                     <CardDescription className="text-base">{t.wizard.identityDesc}</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-6 pt-8 pb-4">
                                     <div className="grid gap-3">
-                                        <Label htmlFor="name" className="text-sm font-semibold flex items-center gap-2">
+                                        <Label htmlFor="name" className="text-sm font-semibold flex items-center gap-2 text-slate-700">
                                             {t.wizard.productName} <span className="text-red-500">*</span>
                                             {formData.name.trim().length > 0 && <Check className="h-4 w-4 text-emerald-500" />}
                                         </Label>
@@ -188,7 +188,7 @@ export default function AssessmentWizard() {
                                         />
                                     </div>
                                     <div className="grid gap-3">
-                                        <Label htmlFor="description" className="text-sm font-semibold flex items-center gap-2">
+                                        <Label htmlFor="description" className="text-sm font-semibold flex items-center gap-2 text-slate-700">
                                             {t.wizard.overview} <span className="text-red-500">*</span>
                                             {formData.description.trim().length > 10 && <Check className="h-4 w-4 text-emerald-500" />}
                                         </Label>
@@ -207,7 +207,7 @@ export default function AssessmentWizard() {
                                         )}
                                     </div>
                                     <div className="grid gap-3">
-                                        <Label htmlFor="intended_purpose" className="text-sm font-semibold">{t.wizard.purpose}</Label>
+                                        <Label htmlFor="intended_purpose" className="text-sm font-semibold text-slate-700">{t.wizard.purpose}</Label>
                                         <Textarea
                                             id="intended_purpose"
                                             name="intended_purpose"
@@ -246,12 +246,12 @@ export default function AssessmentWizard() {
                                             {t.wizard.step2Title}
                                         </Badge>
                                     </div>
-                                    <CardTitle className="text-2xl font-bold">{t.wizard.drivers}</CardTitle>
+                                    <CardTitle className="text-2xl font-bold text-slate-900">{t.wizard.drivers}</CardTitle>
                                     <CardDescription className="text-base">{t.wizard.driversDesc}</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-6 pt-8 pb-4">
                                     <div className="grid gap-3">
-                                        <Label htmlFor="domain" className="text-sm font-semibold flex items-center gap-2">
+                                        <Label htmlFor="domain" className="text-sm font-semibold flex items-center gap-2 text-slate-700">
                                             {t.wizard.domain} <span className="text-red-500">*</span>
                                             {formData.domain.trim().length > 0 && <Check className="h-4 w-4 text-emerald-500" />}
                                         </Label>
@@ -377,7 +377,7 @@ export default function AssessmentWizard() {
                                             {t.wizard.step3Title}
                                         </Badge>
                                     </div>
-                                    <CardTitle className="text-2xl font-bold">{t.wizard.readyAnalyze}</CardTitle>
+                                    <CardTitle className="text-2xl font-bold text-slate-900">{t.wizard.readyAnalyze}</CardTitle>
                                     <CardDescription className="text-base">{t.wizard.reviewDesc}</CardDescription>
                                 </CardHeader>
                                 <CardContent className="pt-8 pb-4">
@@ -385,7 +385,7 @@ export default function AssessmentWizard() {
                                         <div className="grid grid-cols-2 gap-6">
                                             <div>
                                                 <p className="text-xs font-bold uppercase text-slate-400 tracking-wider mb-1">{t.wizard.productName}</p>
-                                                <p className="font-semibold text-lg">{formData.name || "—"}</p>
+                                                <p className="font-semibold text-lg text-slate-900">{formData.name || "—"}</p>
                                             </div>
                                             <div>
                                                 <p className="text-xs font-bold uppercase text-slate-400 tracking-wider mb-1">{t.wizard.domain}</p>

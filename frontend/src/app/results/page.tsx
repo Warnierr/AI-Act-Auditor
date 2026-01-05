@@ -173,7 +173,7 @@ export default function ResultsPage() {
                             <div className="bg-gradient-to-br from-blue-600 to-indigo-600 p-2 rounded-xl shadow-lg">
                                 <Shield className="h-5 w-5 text-white" />
                             </div>
-                            <span className="font-bold text-lg hidden sm:block">AI Act Auditor</span>
+                            <span className="font-bold text-lg hidden sm:block text-slate-900">AI Act Auditor</span>
                         </Link>
                         <div className="h-6 w-px bg-slate-200 hidden sm:block"></div>
                         <Badge variant="secondary" className="hidden sm:flex">
@@ -184,7 +184,7 @@ export default function ResultsPage() {
                     <div className="flex items-center gap-2">
                         <button
                             onClick={() => setLocale(locale === 'en' ? 'fr' : 'en')}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border bg-white hover:bg-slate-50 transition-all text-xs font-bold shadow-sm"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border bg-white hover:bg-slate-50 transition-all text-xs font-bold shadow-sm text-slate-700"
                         >
                             <Languages className="h-3.5 w-3.5 text-blue-600" />
                             {locale === 'en' ? 'FR' : 'EN'}
@@ -251,7 +251,7 @@ export default function ResultsPage() {
                         >
                             <Card className="glass-card border-0 shadow-xl overflow-hidden">
                                 <CardHeader className="border-b bg-white/50 pb-4">
-                                    <CardTitle className="text-lg flex items-center gap-2">
+                                    <CardTitle className="text-lg flex items-center gap-2 text-slate-900">
                                         <GanttChart className="h-5 w-5 text-blue-600" />
                                         {t.common.systemProfile}
                                     </CardTitle>
@@ -259,7 +259,7 @@ export default function ResultsPage() {
                                 <CardContent className="pt-6 space-y-5">
                                     <div>
                                         <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">{locale === 'fr' ? 'Projet' : 'Project'}</label>
-                                        <p className="font-semibold text-lg">{inputData?.name}</p>
+                                        <p className="font-semibold text-lg text-slate-900">{inputData?.name}</p>
                                     </div>
                                     <div>
                                         <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">{locale === 'fr' ? 'Domaine' : 'Domain'}</label>
@@ -294,15 +294,15 @@ export default function ResultsPage() {
                             transition={{ delay: 0.2 }}
                             className="space-y-3"
                         >
-                            <Button variant="outline" className="w-full justify-start h-12" onClick={() => window.print()}>
+                            <Button variant="outline" className="w-full justify-start h-12 text-slate-700 border-slate-200 bg-white hover:bg-slate-50" onClick={() => window.print()}>
                                 <Printer className="mr-3 h-4 w-4" />
                                 {locale === 'fr' ? 'Imprimer la page' : 'Print page'}
                             </Button>
-                            <Button variant="outline" className="w-full justify-start h-12" onClick={handleShare}>
+                            <Button variant="outline" className="w-full justify-start h-12 text-slate-700 border-slate-200 bg-white hover:bg-slate-50" onClick={handleShare}>
                                 <Share2 className="mr-3 h-4 w-4" />
                                 {locale === 'fr' ? 'Partager' : 'Share'}
                             </Button>
-                            <Button variant="outline" className="w-full justify-start h-12" asChild>
+                            <Button variant="outline" className="w-full justify-start h-12 text-slate-700 border-slate-200 bg-white hover:bg-slate-50" asChild>
                                 <Link href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj" target="_blank">
                                     <ExternalLink className="mr-3 h-4 w-4" />
                                     {locale === 'fr' ? 'Texte officiel IA Act' : 'Official AI Act text'}
@@ -321,7 +321,7 @@ export default function ResultsPage() {
                         >
                             <Card className="glass-card border-0 shadow-xl overflow-hidden">
                                 <CardHeader className="border-b bg-white/50">
-                                    <CardTitle className="flex items-center gap-2 text-xl">
+                                    <CardTitle className="flex items-center gap-2 text-xl text-slate-900">
                                         <Info className="h-6 w-6 text-indigo-500" />
                                         {t.common.legalJustification}
                                     </CardTitle>
