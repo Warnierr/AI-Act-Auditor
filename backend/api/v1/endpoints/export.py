@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Response
-from backend.core.models import AISystemInput, AnalysisResult
-from backend.core.reporting import PDFGenerator
-from backend.core.rules import RuleEngine
+from core.models import AISystemInput, AnalysisResult
+from core.reporting import PDFGenerator
+from core.rules import RuleEngine
 from pydantic import BaseModel
 
 class ExportRequest(BaseModel):

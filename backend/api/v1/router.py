@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from backend.api.v1.endpoints import assess, export, chat
+from api.v1.endpoints import assess, export, chat
 
 api_router = APIRouter()
 api_router.include_router(assess.router, tags=["assess"])

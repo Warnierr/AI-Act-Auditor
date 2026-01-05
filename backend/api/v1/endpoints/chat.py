@@ -6,7 +6,7 @@ Provides LLM-powered advice with RAG for EU AI Act compliance
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional
-from backend.core.advisor import get_ai_advice
+from core.advisor import get_ai_advice
 
 router = APIRouter()
 

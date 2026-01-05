@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.core.config import settings
-from backend.api.v1 import router as api_router
+from core.config import settings
+from api.v1 import router as api_router
 
 app = FastAPI(
     title=settings.PROJECT_NAME,

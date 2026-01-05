@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
-from backend.core.models import AISystemInput, AnalysisResult
-from backend.core.rules import RuleEngine
+from core.models import AISystemInput, AnalysisResult
+from core.rules import RuleEngine
 
 router = APIRouter()
 
