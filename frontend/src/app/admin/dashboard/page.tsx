@@ -30,9 +30,9 @@ export default function AdminDashboard() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50">
+        <div className="min-h-screen bg-background">
             {/* Topbar */}
-            <header className="bg-white border-b sticky top-0 z-50">
+            <header className="bg-card border-b sticky top-0 z-50">
                 <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-2 font-bold text-xl">
                         <div className="bg-slate-900 text-white p-1.5 rounded-lg">
@@ -42,10 +42,10 @@ export default function AdminDashboard() {
                     </div>
                     <div className="flex items-center gap-4">
                         <Button variant="ghost" size="icon">
-                            <Search className="h-5 w-5 text-slate-500" />
+                            <Search className="h-5 w-5 text-muted-foreground" />
                         </Button>
                         <Button variant="ghost" size="icon">
-                            <Bell className="h-5 w-5 text-slate-500" />
+                            <Bell className="h-5 w-5 text-muted-foreground" />
                         </Button>
                         <Button onClick={handleLogout} variant="outline" size="sm" className="ml-2 gap-2">
                             <LogOut className="h-4 w-4" />
@@ -57,8 +57,8 @@ export default function AdminDashboard() {
 
             <main className="container mx-auto px-4 py-8">
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold tracking-tight text-slate-900">Vue d'ensemble</h1>
-                    <p className="text-slate-500 mt-1">Bienvenue sur le tableau de bord administrateur.</p>
+                    <h1 className="text-3xl font-bold tracking-tight text-foreground">Vue d'ensemble</h1>
+                    <p className="text-muted-foreground mt-1">Bienvenue sur le tableau de bord administrateur.</p>
                 </div>
 
                 {/* KPI Cards */}
@@ -72,7 +72,7 @@ export default function AdminDashboard() {
                         <Card key={i} className="hover:shadow-md transition-shadow">
                             <CardContent className="p-6">
                                 <div className="flex items-center justify-between space-y-0 pb-2">
-                                    <p className="text-sm font-medium text-slate-500">{kpi.title}</p>
+                                    <p className="text-sm font-medium text-muted-foreground">{kpi.title}</p>
                                     <kpi.icon className={`h-4 w-4 text-${kpi.color}-500`} />
                                 </div>
                                 <div className="flex items-end justify-between pt-4">
@@ -93,14 +93,14 @@ export default function AdminDashboard() {
                     <CardContent>
                         <div className="space-y-4">
                             {[1, 2, 3, 4, 5].map((i) => (
-                                <div key={i} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border hover:bg-white hover:shadow-sm transition-all cursor-pointer">
+                                <div key={i} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border hover:bg-muted/80 transition-all cursor-pointer">
                                     <div className="flex items-center gap-4">
                                         <div className="h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 font-bold">
                                             #{1000 + i}
                                         </div>
                                         <div>
-                                            <p className="font-medium text-slate-900">Système IA Alpha-{i}</p>
-                                            <p className="text-sm text-slate-500">Analysé il y a {i * 15} minutes</p>
+                                            <p className="font-medium text-foreground">Système IA Alpha-{i}</p>
+                                            <p className="text-sm text-muted-foreground">Analysé il y a {i * 15} minutes</p>
                                         </div>
                                     </div>
                                     <div className="text-right">
