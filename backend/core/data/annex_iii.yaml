@@ -1,0 +1,48 @@
+high_risk_systems:
+  - id: "biometric_identification"
+    category: "Biometrics"
+    description: "Remote biometric identification systems"
+    keywords: ["biometric", "facial recognition", "identification", "emotion recognition"]
+    article_ref: "Annex III, 1"
+
+  - id: "critical_infrastructure"
+    category: "Critical Infrastructure"
+    description: "Safety components in critical infrastructure (road, water, gas, heating, electricity)"
+    keywords: ["traffic", "water supply", "gas supply", "electricity", "critical infrastructure"]
+    article_ref: "Annex III, 2"
+
+  - id: "education"
+    category: "Education"
+    description: "Systems for determining access or assigning to educational institutions"
+    keywords: ["admission", "student", "education", "grading", "exam"]
+    article_ref: "Annex III, 3"
+
+  - id: "employment"
+    category: "Employment"
+    description: "Recruitment, selection, or promotion of employees"
+    keywords: ["recruitment", "hiring", "resume", "cv", "promotion", "employee monitoring"]
+    article_ref: "Annex III, 4"
+
+  - id: "public_services"
+    category: "Public Services"
+    description: "Evaluating eligibility for public assistance benefits and services"
+    keywords: ["benefits", "welfare", "eligibility", "public services", "credit score"]
+    article_ref: "Annex III, 5"
+
+  - id: "law_enforcement"
+    category: "Law Enforcement"
+    description: "Systems used by law enforcement authorities for risk assessment or lie detection"
+    keywords: ["police", "crime", "offender", "lie detection", "polygraph"]
+    article_ref: "Annex III, 6"
+
+  - id: "border_control"
+    category: "Migration & Border Control"
+    description: "Polygraphs or verification of documents"
+    keywords: ["visa", "asylum", "border", "passport", "migration"]
+    article_ref: "Annex III, 7"
+
+  - id: "justice"
+    category: "Administration of Justice"
+    description: "Assisting judicial authorities in researching and interpreting facts"
+    keywords: ["court", "judge", "legal", "sentence", "reoffend"]
+    article_ref: "Annex III, 8"

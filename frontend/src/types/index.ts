@@ -1,0 +1,48 @@
+export enum RiskLevel {
+    UNACCEPTABLE = "Prohibited",
+    HIGH = "High Risk",
+    LIMITED = "Limited Risk",
+    MINIMAL = "Minimal Risk"
+}
+
+export interface AISystemInput {
+    name: string;
+    description: string;
+    intended_purpose: string;
+    domain: string;
+
+    // Annex III High-Risk Categories
+    is_biometric: boolean;
+    is_critical_infrastructure: boolean;
+    is_safety_component: boolean;
+    biometrics: boolean;          // Remote biometric identification
+    infrastructure: boolean;       // Critical infrastructure (energy, water, transport)
+    education: boolean;            // Education & vocational training
+    employment: boolean;           // Employment, HR, and worker management
+    services: boolean;             // Essential public & private services (credit, insurance, emergency)
+    law_enforcement: boolean;      // Law enforcement (polygraphs, risk assessment, deepfakes)
+    migration: boolean;            // Migration, asylum, and border control
+    justice: boolean;              // Justice administration & democratic processes
+
+    // Limited Risk (Transparency obligations)
+    is_gen_ai: boolean;            // Generative AI (chatbots, content generation)
+
+    deployment_phase: "On Market" | "In Service" | "Development";
+    language?: string;
+}
+
+export interface MatchedRule {
+    rule_id: string;
+    category: string;
+    reason: string;
+    reference: string;
+}
+
+export interface AnalysisResult {
+    risk_level: RiskLevel;
+    risk_score: number;
+    justification: string[];
+    matched_rules: MatchedRule[];
+    obligations: string[];
+    next_steps: string[];
+}
