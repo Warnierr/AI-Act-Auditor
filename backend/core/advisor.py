@@ -14,16 +14,17 @@ def get_anthropic_client():
     """Get or create Anthropic client (supports direct or OpenRouter)"""
     global client
     if client is None:
-        # Try OpenRouter first (if configured)
+        # Try OpenRouter first (prioritized)
         openrouter_key = os.getenv("OPENROUTER_API_KEY")
-        openrouter_base = os.getenv("OPENROUTER_BASE_URL")
+        # Default to standard OpenRouter API URL if not explicitly set
+        openrouter_base = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
         
-        if openrouter_key and openrouter_base:
+        if openrouter_key:
             client = Anthropic(
                 api_key=openrouter_key,
                 base_url=openrouter_base
             )
-            print("✓ Using OpenRouter for AI Advisor")
+            print(f"✓ Using OpenRouter for AI Advisor (URL: {openrouter_base})")
         else:
             # Fallback to direct Anthropic
             api_key = os.getenv("ANTHROPIC_API_KEY")
