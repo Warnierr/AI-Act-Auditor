@@ -17,7 +17,12 @@ def get_openai_client():
     if client is None:
         openrouter_key = os.getenv("OPENROUTER_API_KEY")
         
-        if openrouter_key:
+        # Windows bug protection: check for unresolved % variables
+        if openrouter_key and "%" in openrouter_key:
+            print("⚠️ WARNING: OPENROUTER_API_KEY contains '%' - likely Windows env var issue")
+            openrouter_key = None
+        
+        if openrouter_key and openrouter_key.startswith("sk-or-"):
             client = OpenAI(
                 api_key=openrouter_key,
                 base_url="https://openrouter.ai/api/v1"
@@ -26,13 +31,19 @@ def get_openai_client():
         else:
             # Fallback to direct Anthropic (if ANTHROPIC_API_KEY is set)
             anthropic_key = os.getenv("ANTHROPIC_API_KEY")
+            
+            # Windows bug protection for Anthropic key too
+            if anthropic_key and "%" in anthropic_key:
+                print("⚠️ WARNING: ANTHROPIC_API_KEY contains '%' - likely Windows env var issue")
+                anthropic_key = None
+            
             if anthropic_key:
                 # Use Anthropic directly via their SDK
                 from anthropic import Anthropic
                 client = Anthropic(api_key=anthropic_key)
                 print("✓ Using Anthropic Direct for AI Advisor")
             else:
-                raise ValueError("Neither OPENROUTER_API_KEY nor ANTHROPIC_API_KEY is set in environment")
+                raise ValueError("Neither OPENROUTER_API_KEY nor ANTHROPIC_API_KEY is set in environment (or contains invalid % characters)")
     
     return client
 
