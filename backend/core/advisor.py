@@ -1,37 +1,38 @@
 """
 AI Act Advisor Service - LLM-powered advisory with RAG
-Uses Claude (Anthropic or OpenRouter) for intelligent, context-aware recommendations
+Uses Claude via OpenRouter (OpenAI-compatible API)
 """
 
 import os
-from anthropic import Anthropic
+import re
+from openai import OpenAI
 from core.articles_db import get_relevant_context, search_articles
 
-# Initialize Anthropic client
+# Initialize OpenAI client (for OpenRouter)
 client = None
 
-def get_anthropic_client():
-    """Get or create Anthropic client (supports direct or OpenRouter)"""
+def get_openai_client():
+    """Get or create OpenAI client configured for OpenRouter"""
     global client
     if client is None:
-        # Try OpenRouter first (prioritized)
         openrouter_key = os.getenv("OPENROUTER_API_KEY")
-        # Default to standard OpenRouter API URL if not explicitly set
-        openrouter_base = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
         
         if openrouter_key:
-            client = Anthropic(
+            client = OpenAI(
                 api_key=openrouter_key,
-                base_url=openrouter_base
+                base_url="https://openrouter.ai/api/v1"
             )
-            print(f"✓ Using OpenRouter for AI Advisor (URL: {openrouter_base})")
+            print("✓ Using OpenRouter for AI Advisor")
         else:
-            # Fallback to direct Anthropic
-            api_key = os.getenv("ANTHROPIC_API_KEY")
-            if not api_key:
+            # Fallback to direct Anthropic (if ANTHROPIC_API_KEY is set)
+            anthropic_key = os.getenv("ANTHROPIC_API_KEY")
+            if anthropic_key:
+                # Use Anthropic directly via their SDK
+                from anthropic import Anthropic
+                client = Anthropic(api_key=anthropic_key)
+                print("✓ Using Anthropic Direct for AI Advisor")
+            else:
                 raise ValueError("Neither OPENROUTER_API_KEY nor ANTHROPIC_API_KEY is set in environment")
-            client = Anthropic(api_key=api_key)
-            print("✓ Using Anthropic Direct for AI Advisor")
     
     return client
 
@@ -139,27 +140,39 @@ Your role: Provide nuanced, critical analysis. Question the initial assessment i
 """
 
     try:
-        anthropic_client = get_anthropic_client()
+        openai_client = get_openai_client()
         
-        # Call Claude API
-        message = anthropic_client.messages.create(
-            model="claude-3-5-sonnet-20241022",  # Works with OpenRouter too
-            max_tokens=2000,
-            temperature=0.2,  # Very low for factual, careful responses
-            system=system_prompt,
-            messages=[
-                {
-                    "role": "user",
-                    "content": question
+        # Check if we're using OpenAI SDK (OpenRouter) or Anthropic SDK
+        if isinstance(openai_client, OpenAI):
+            # OpenRouter via OpenAI SDK
+            response = openai_client.chat.completions.create(
+                model="anthropic/claude-3.5-sonnet",  # OpenRouter model name
+                max_tokens=2000,
+                temperature=0.2,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": question}
+                ],
+                extra_headers={
+                    "HTTP-Referer": "https://ai-act-auditor.vercel.app",
+                    "X-Title": "AI Act Auditor"
                 }
-            ]
-        )
-        
-        # Extract the answer
-        answer = message.content[0].text
+            )
+            answer = response.choices[0].message.content
+        else:
+            # Anthropic SDK directly
+            message = openai_client.messages.create(
+                model="claude-3-5-sonnet-20241022",
+                max_tokens=2000,
+                temperature=0.2,
+                system=system_prompt,
+                messages=[
+                    {"role": "user", "content": question}
+                ]
+            )
+            answer = message.content[0].text
         
         # Extract article references from the answer
-        import re
         article_refs = re.findall(r'Article (\d+)', answer)
         sources = list(set(article_refs))  # Remove duplicates
         
