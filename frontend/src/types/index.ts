@@ -27,6 +27,13 @@ export interface AISystemInput {
     // Limited Risk (Transparency obligations)
     is_gen_ai: boolean;            // Generative AI (chatbots, content generation)
 
+    // NEW: Enhanced audit questions
+    user_type?: "general_public" | "professionals" | "vulnerable_groups" | "mixed";
+    data_types?: ("personal" | "sensitive" | "biometric" | "financial" | "health" | "none")[];
+    affects_rights?: boolean;       // Does it affect fundamental rights?
+    automation_level?: "full" | "partial" | "advisory";  // Level of automation in decisions
+    output_type?: "recommendations" | "decisions" | "content" | "predictions" | "classifications";
+
     deployment_phase: "On Market" | "In Service" | "Development";
     language?: string;
 }

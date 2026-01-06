@@ -165,6 +165,131 @@ ARTICLES_DB = {
         adversarial testing, tracking and reporting serious incidents.
         """,
         "reference": "Article 52, EU AI Act (Regulation 2024/1689)"
+    },
+    "annex3": {
+        "title": "Annex III - High-Risk AI Systems Categories",
+        "summary": "Complete list of high-risk AI system categories",
+        "content": """
+        HIGH-RISK AI SYSTEMS referred to in Article 6(2):
+        
+        1. BIOMETRICS (insofar as allowed under Union or national law):
+           - Remote biometric identification systems
+           - Biometric categorization systems
+           - Emotion recognition systems
+        
+        2. CRITICAL INFRASTRUCTURE:
+           - AI used as safety components in management of road traffic, water, gas, heating, electricity
+           - AI for operation of critical digital infrastructure
+        
+        3. EDUCATION AND VOCATIONAL TRAINING:
+           - AI for determining access to educational institutions
+           - AI for assessing students in educational institutions
+           - AI for assessing appropriate level of education for an individual
+           - AI for monitoring and detecting prohibited behavior during tests
+        
+        4. EMPLOYMENT, WORKERS MANAGEMENT AND ACCESS TO SELF-EMPLOYMENT:
+           - AI for recruitment or selection of natural persons (advertising, screening, filtering applications, evaluating candidates)
+           - AI for decisions on promotion and termination
+           - AI for task allocation based on individual behavior or personal traits
+           - AI for monitoring and evaluating performance and behavior
+        
+        5. ACCESS TO ESSENTIAL PRIVATE AND PUBLIC SERVICES:
+           - AI for evaluating creditworthiness of natural persons (credit scoring)
+           - AI for risk assessment and pricing in life and health insurance
+           - AI for assessing and classifying emergency calls (priority dispatching)
+           - AI for evaluating eligibility for public assistance benefits
+        
+        6. LAW ENFORCEMENT:
+           - AI for assessing risk of natural persons offending or re-offending
+           - Polygraph and similar tools
+           - AI for assessing reliability of evidence
+           - AI for profiling in criminal investigations
+        
+        7. MIGRATION, ASYLUM AND BORDER CONTROL:
+           - AI for assessing risks (security, irregular migration, health)
+           - AI for examining applications for asylum, visa and residence
+           - AI for detection, recognition or identification of persons
+        
+        8. ADMINISTRATION OF JUSTICE AND DEMOCRATIC PROCESSES:
+           - AI for assisting judicial authorities in researching and interpreting facts and law
+           - AI for influencing outcome of election or referendum
+        """,
+        "reference": "Annex III, EU AI Act (Regulation 2024/1689)"
+    },
+    "minimal": {
+        "title": "Minimal Risk AI Systems",
+        "summary": "AI systems with minimal regulatory requirements",
+        "content": """
+        MINIMAL RISK AI SYSTEMS:
+        
+        The vast majority of AI systems fall into this category. These systems are NOT subject to specific 
+        obligations under the AI Act but still require:
+        
+        1. GENERAL GOOD PRACTICES:
+           - Basic transparency (inform users they interact with AI when not obvious)
+           - Respect for fundamental rights
+           - Data protection compliance (GDPR)
+           - Non-discrimination principles
+        
+        2. EXAMPLES OF MINIMAL RISK AI:
+           - AI-enabled video games
+           - Spam filters
+           - AI for inventory management
+           - Recommendation systems (unless affecting fundamental rights)
+           - AI for content personalization
+           - Translation tools
+           - Search engines
+        
+        3. VOLUNTARY CODES OF CONDUCT:
+           The Commission and Member States encourage voluntary codes of conduct for minimal risk AI systems,
+           particularly regarding:
+           - Environmental sustainability
+           - Accessibility for persons with disabilities
+           - Stakeholder participation in design
+           - Diversity in development teams
+        
+        4. IMPORTANT CAVEAT:
+           A system initially classified as minimal risk may need reclassification if:
+           - It starts affecting fundamental rights
+           - It influences decisions on access to services
+           - It affects vulnerable groups
+           - It is integrated into a high-risk system
+        """,
+        "reference": "Recital 28-29 and Article 95, EU AI Act (Regulation 2024/1689)"
+    },
+    "deadlines": {
+        "title": "AI Act Implementation Timeline",
+        "summary": "Key compliance deadlines for the AI Act",
+        "content": """
+        AI ACT IMPLEMENTATION TIMELINE:
+        
+        - AUGUST 2024: Entry into force (20 days after publication)
+        
+        - FEBRUARY 2025 (6 months):
+          * Prohibition of banned AI practices (Article 5)
+          * AI literacy requirements for operators
+        
+        - AUGUST 2025 (12 months):
+          * Rules for General Purpose AI (GPAI) models
+          * Governance structure in place
+          * National authorities designated
+        
+        - AUGUST 2026 (24 months):
+          * FULL APPLICATION of all requirements for high-risk AI systems
+          * Conformity assessments required
+          * CE marking mandatory
+          * Registration in EU database
+        
+        - AUGUST 2027 (36 months):
+          * High-risk AI systems that are components of products covered by specific EU legislation
+        
+        IMPORTANT: Start preparing NOW. Compliance requires significant time for:
+        - Technical documentation
+        - Risk management systems
+        - Quality management systems
+        - Conformity assessment procedures
+        """,
+        "reference": "Article 113, EU AI Act (Regulation 2024/1689)"
     }
 }
 
@@ -197,13 +322,21 @@ def get_relevant_context(risk_level: str, categories: list) -> str:
     """Get relevant articles based on assessment results"""
     relevant_articles = []
     
-    # Always include fundamental articles
-    if risk_level in ["High Risk", "Haut Risque"]:
-        relevant_articles.extend(["6", "9", "10", "11", "12", "13", "14", "15"])
-    elif risk_level in ["Limited Risk", "Risque Limité"]:
-        relevant_articles.append("50")
-    elif "Prohibited" in risk_level or "Prohibé" in risk_level:
+    # Always include deadlines for context
+    relevant_articles.append("deadlines")
+    
+    # Include articles based on risk level
+    if risk_level.upper() in ["HIGH RISK", "HAUT RISQUE", "HIGH"]:
+        relevant_articles.extend(["6", "annex3", "9", "10", "11", "12", "13", "14", "15"])
+    elif risk_level.upper() in ["LIMITED RISK", "RISQUE LIMITÉ", "LIMITED"]:
+        relevant_articles.extend(["50", "52"])
+    elif "PROHIBITED" in risk_level.upper() or "PROHIBÉ" in risk_level.upper() or "PROHIBE" in risk_level.upper():
         relevant_articles.append("5")
+    elif risk_level.upper() in ["MINIMAL RISK", "RISQUE MINIMAL", "MINIMAL"]:
+        relevant_articles.append("minimal")
+    else:
+        # Unknown risk level, include minimal guidance
+        relevant_articles.append("minimal")
     
     # Build context string
     context_parts = []
