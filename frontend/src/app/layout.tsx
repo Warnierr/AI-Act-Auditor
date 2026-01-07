@@ -5,6 +5,7 @@ import { LanguageProvider } from "@/lib/LanguageContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ChatAssistant } from "@/components/chat/ChatAssistant";
 import { Toaster } from "@/components/ui/sonner";
+import { SkipToContent } from "@/components/SkipToContent";
 
 const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800", "900"] });
 
@@ -21,6 +22,7 @@ export default function RootLayout({
     return (
         <html lang="en" className="scroll-smooth">
             <body className={`${inter.className} antialiased bg-[rgb(var(--bg-primary))] text-[rgb(var(--text-primary))] selection:bg-accent-primary/20 selection:text-accent-primary transition-colors duration-300`}>
+                <SkipToContent />
                 <ThemeProvider>
                     <LanguageProvider>
                         {children}

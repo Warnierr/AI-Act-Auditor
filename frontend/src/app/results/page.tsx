@@ -306,7 +306,7 @@ export default function ResultsPage() {
                 </div>
             </header>
 
-            <main className="container mx-auto px-4 py-6 sm:py-12 max-w-6xl">
+            <main id="main-content" className="container mx-auto px-4 py-6 sm:py-12 max-w-6xl" role="main">
                 {/* Risk Score Hero */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
