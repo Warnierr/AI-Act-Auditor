@@ -32,6 +32,7 @@ import {
     Sparkles,
     Check,
     AlertCircle,
+    AlertTriangle,
     Info,
     ShieldAlert
 } from "lucide-react"
@@ -99,7 +100,7 @@ export default function AssessmentWizard() {
                 'exploit vulnerabilities', 'vulnerable groups', 'predictive policing',
                 'crime prediction', 'risk profiling', 'reputation system'
             ]
-            
+
             return suspiciousPatterns.filter(pattern => textLower.includes(pattern))
         }
 
@@ -289,7 +290,7 @@ export default function AssessmentWizard() {
                                                 {locale === 'fr' ? 'La description doit contenir au moins 10 caractères.' : 'Description must be at least 10 characters.'}
                                             </p>
                                         )}
-                                        
+
                                         {/* Suspicious terms alert (Article 5) */}
                                         {suspiciousTerms.length > 0 && (
                                             <Alert variant="destructive" className="mt-3 border-orange-500 bg-orange-50 dark:bg-orange-950/20">
@@ -298,7 +299,7 @@ export default function AssessmentWizard() {
                                                     {locale === 'fr' ? '⚠️ Attention : Termes Suspects Détectés' : '⚠️ Warning: Suspicious Terms Detected'}
                                                 </AlertTitle>
                                                 <AlertDescription className="text-orange-800 dark:text-orange-300 text-xs sm:text-sm">
-                                                    {locale === 'fr' 
+                                                    {locale === 'fr'
                                                         ? `Votre description contient des termes qui pourraient indiquer un système interdit selon l'Article 5 de l'AI Act (${suspiciousTerms.slice(0, 2).join(', ')}${suspiciousTerms.length > 2 ? '...' : ''}). Veuillez vérifier la conformité avec un expert juridique avant de continuer.`
                                                         : `Your description contains terms that may indicate a prohibited system under Article 5 of the AI Act (${suspiciousTerms.slice(0, 2).join(', ')}${suspiciousTerms.length > 2 ? '...' : ''}). Please verify compliance with a legal expert before proceeding.`
                                                     }
