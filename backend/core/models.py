@@ -24,6 +24,14 @@ class AISystemInput(BaseModel):
     is_critical_infrastructure: bool = False
     is_safety_component: bool = False
     
+    # Enhanced audit metadata
+    user_type: Optional[str] = Field(None, description="Primary user profile (public, professionals, etc.)")
+    data_types: Optional[List[str]] = Field(None, description="Types of data processed by the system")
+    affects_rights: bool = False
+    automation_level: Optional[str] = Field(None, description="Level of automation for decision-making")
+    output_type: Optional[str] = Field(None, description="Type of output produced by the AI system")
+    additional_context: Optional[str] = Field(None, description="Additional context to help the advisor or reviewer")
+
     deployment_phase: DeploymentPhase = DeploymentPhase.DEVELOPMENT
     language: str = "en"  # "en" or "fr"
 

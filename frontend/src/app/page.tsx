@@ -95,7 +95,7 @@ export default function Home() {
 
             <main className="flex-1">
                 {/* Hero Section */}
-                <section className="relative w-full py-20 md:py-28 lg:py-36 overflow-hidden mesh-gradient noise-overlay">
+                <section className="relative w-full py-12 sm:py-20 md:py-28 lg:py-36 overflow-hidden mesh-gradient noise-overlay">
                     {/* Decorative elements */}
                     <div className="absolute top-20 left-10 w-72 h-72 bg-blue-400/20 rounded-full blur-[100px] float"></div>
                     <div className="absolute bottom-10 right-10 w-96 h-96 bg-purple-400/20 rounded-full blur-[120px] float" style={{ animationDelay: '-3s' }}></div>
@@ -130,15 +130,15 @@ export default function Home() {
                                 </p>
                             </motion.div>
 
-                            <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center gap-4 pt-4">
-                                <Button size="lg" className="h-14 px-8 text-base bg-gradient-to-r from-primary to-accent hover:opacity-90 text-primary-foreground shadow-xl shadow-primary/20 btn-premium group" asChild>
+                            <motion.div variants={fadeInUp} className="flex flex-col xs:flex-row items-stretch xs:items-center gap-4 pt-4 w-full xs:w-auto">
+                                <Button size="lg" className="h-14 px-8 text-base bg-gradient-to-r from-primary to-accent hover:opacity-90 text-primary-foreground shadow-xl shadow-primary/20 btn-premium group w-full xs:w-auto" asChild>
                                     <Link href="/assess">
                                         {t.common.startAudit}
                                         <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                                     </Link>
                                 </Button>
-                                <Button variant="outline" size="lg" className="h-14 px-8 text-base bg-background/50 backdrop-blur border-border hover:bg-muted/50 shadow-lg" asChild>
-                                    <Link href="https://github.com/Warnierr" target="_blank">
+                                <Button variant="outline" size="lg" className="h-14 px-8 text-base bg-background/50 backdrop-blur border-border hover:bg-muted/50 shadow-lg w-full xs:w-auto" asChild>
+                                    <Link href="https://github.com/Warnierr/AI-Act-Auditor" target="_blank">
                                         <Github className="mr-2 h-5 w-5" />
                                         {t.common.openSource}
                                     </Link>
@@ -160,9 +160,9 @@ export default function Home() {
                 </section>
 
                 {/* Stats Section */}
-                <section className="py-16 bg-card border-y border-border">
+                <section className="py-12 md:py-16 bg-card border-y border-border">
                     <div className="container mx-auto px-4 md:px-6">
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
                             {[
                                 { value: "2min", label: locale === 'fr' ? "Temps moyen d'audit" : "Average audit time", icon: Clock },
                                 { value: "100%", label: locale === 'fr' ? "Annexe III couverte" : "Annex III covered", icon: FileText },
@@ -203,7 +203,7 @@ export default function Home() {
                             </p>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
                             {[
                                 {
                                     icon: Shield,
@@ -326,7 +326,7 @@ export default function Home() {
                             <Link className="hover:text-foreground transition-colors" href="#">
                                 {locale === 'fr' ? 'Confidentialité' : 'Privacy'}
                             </Link>
-                            <Link className="hover:text-foreground transition-colors" href="https://github.com/Warnierr" target="_blank">
+                            <Link className="hover:text-foreground transition-colors" href="https://github.com/Warnierr/AI-Act-Auditor" target="_blank">
                                 GitHub
                             </Link>
                         </div>

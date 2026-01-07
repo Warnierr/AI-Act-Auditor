@@ -2,47 +2,117 @@ high_risk_systems:
   - id: "biometric_identification"
     category: "Biometrics"
     description: "Remote biometric identification systems"
-    keywords: ["biometric", "facial recognition", "identification", "emotion recognition"]
+    keywords: [
+      # EN
+      "biometric", "facial recognition", "identification", "emotion recognition", "face recognition",
+      "fingerprint", "iris scan", "voice recognition", "gait recognition", "behavioral biometric",
+      "biometric authentication", "biometric verification", "emotion detection", "affective computing",
+      # FR
+      "biométrique", "reconnaissance faciale", "reconnaissance émotionnelle", "reconnaissance vocale",
+      "empreinte digitale", "scan iris", "identification biométrique", "détection émotion"
+    ]
     article_ref: "Annex III, 1"
 
   - id: "critical_infrastructure"
     category: "Critical Infrastructure"
     description: "Safety components in critical infrastructure (road, water, gas, heating, electricity)"
-    keywords: ["traffic", "water supply", "gas supply", "electricity", "critical infrastructure"]
+    keywords: [
+      # EN
+      "traffic", "water supply", "gas supply", "electricity", "critical infrastructure",
+      "power grid", "transport network", "energy supply", "utility", "infrastructure safety",
+      "road safety", "railway", "aviation", "smart grid",
+      # FR
+      "infrastructure critique", "réseau électrique", "réseau transport", "approvisionnement eau",
+      "approvisionnement gaz", "sécurité routière", "réseau ferroviaire", "aviation"
+    ]
     article_ref: "Annex III, 2"
 
   - id: "education"
     category: "Education"
     description: "Systems for determining access or assigning to educational institutions"
-    keywords: ["admission", "student", "education", "grading", "exam"]
+    keywords: [
+      # EN
+      "admission", "student", "education", "grading", "exam", "university admission",
+      "enrollment", "student assessment", "academic evaluation", "school admission",
+      "educational institution", "learning evaluation", "exam scoring",
+      # FR
+      "admission", "étudiant", "éducation", "notation", "examen", "évaluation scolaire",
+      "inscription universitaire", "évaluation académique", "établissement scolaire"
+    ]
     article_ref: "Annex III, 3"
 
   - id: "employment"
     category: "Employment"
     description: "Recruitment, selection, or promotion of employees"
-    keywords: ["recruitment", "hiring", "resume", "cv", "promotion", "employee monitoring"]
+    keywords: [
+      # EN
+      "recruitment", "hiring", "resume", "cv", "promotion", "employee monitoring",
+      "recrutement", "embauche", "candidature", "job application", "talent acquisition",
+      "hr automation", "performance review", "employee evaluation", "candidate screening",
+      "personnel selection", "workforce management", "staff monitoring",
+      # FR
+      "recrutement", "embauche", "curriculum vitae", "sélection personnel",
+      "évaluation employé", "gestion ressources humaines", "candidature emploi",
+      "surveillance employés", "gestion personnel"
+    ]
     article_ref: "Annex III, 4"
 
   - id: "public_services"
     category: "Public Services"
     description: "Evaluating eligibility for public assistance benefits and services"
-    keywords: ["benefits", "welfare", "eligibility", "public services", "credit score"]
+    keywords: [
+      # EN
+      "benefits", "welfare", "eligibility", "public services", "credit score",
+      "social benefits", "public assistance", "credit scoring", "creditworthiness",
+      "loan approval", "insurance pricing", "healthcare access", "emergency services",
+      # FR
+      "prestations", "aide sociale", "éligibilité", "services publics", "score crédit",
+      "prestations sociales", "assistance publique", "notation crédit", "approbation prêt",
+      "tarification assurance", "accès soins santé", "services urgence"
+    ]
     article_ref: "Annex III, 5"
 
   - id: "law_enforcement"
     category: "Law Enforcement"
     description: "Systems used by law enforcement authorities for risk assessment or lie detection"
-    keywords: ["police", "crime", "offender", "lie detection", "polygraph"]
+    keywords: [
+      # EN
+      "police", "crime", "offender", "lie detection", "polygraph", "law enforcement",
+      "criminal risk", "recidivism", "crime prediction", "suspect", "investigation",
+      "truth verification", "deception detection",
+      # FR
+      "police", "crime", "délinquant", "détection mensonge", "polygraphe",
+      "forces ordre", "risque criminel", "récidive", "prédiction crime", "suspect",
+      "enquête", "vérification véracité"
+    ]
     article_ref: "Annex III, 6"
 
   - id: "border_control"
     category: "Migration & Border Control"
     description: "Polygraphs or verification of documents"
-    keywords: ["visa", "asylum", "border", "passport", "migration"]
+    keywords: [
+      # EN
+      "visa", "asylum", "border", "passport", "migration", "immigration",
+      "border control", "document verification", "identity verification", "refugee",
+      "travel document", "border security",
+      # FR
+      "visa", "asile", "frontière", "passeport", "migration", "immigration",
+      "contrôle frontières", "vérification documents", "vérification identité",
+      "réfugié", "document voyage", "sécurité frontières"
+    ]
     article_ref: "Annex III, 7"
 
   - id: "justice"
     category: "Administration of Justice"
     description: "Assisting judicial authorities in researching and interpreting facts"
-    keywords: ["court", "judge", "legal", "sentence", "reoffend"]
+    keywords: [
+      # EN
+      "court", "judge", "legal", "sentence", "reoffend", "judicial",
+      "tribunal", "legal interpretation", "case analysis", "sentencing",
+      "reoffending", "justice administration", "legal research",
+      # FR
+      "tribunal", "juge", "juridique", "sentence", "récidiver", "judiciaire",
+      "interprétation juridique", "analyse cas", "condamnation",
+      "récidive", "administration justice", "recherche juridique"
+    ]
     article_ref: "Annex III, 8"

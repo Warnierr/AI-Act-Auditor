@@ -34,6 +34,8 @@ export interface AISystemInput {
     automation_level?: "full" | "partial" | "advisory";  // Level of automation in decisions
     output_type?: "recommendations" | "decisions" | "content" | "predictions" | "classifications";
 
+    additional_context?: string;
+
     deployment_phase: "On Market" | "In Service" | "Development";
     language?: string;
 }

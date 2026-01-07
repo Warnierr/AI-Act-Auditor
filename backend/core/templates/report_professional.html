@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Act Compliance Report - {{ system.name }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2.5cm 2cm;
+            @bottom-right {
+                content: "Page " counter(page) " / " counter(pages);
+                font-size: 9px;
+                color: #666;
+            }
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #1a1a1a;
+            line-height: 1.6;
+            font-size: 11pt;
+        }
+        
+        /* Cover Page */
+        .cover-page {
+            page-break-after: always;
+            text-align: center;
+            padding-top: 30%;
+        }
+        
+        .cover-page h1 {
+            font-size: 28pt;
+            color: #1e40af;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .cover-page .subtitle {
+            font-size: 16pt;
+            color: #64748b;
+            margin-bottom: 40px;
+        }
+        
+        .cover-page .system-name {
+            font-size: 20pt;
+            font-weight: bold;
+            color: #334155;
+            margin: 40px 0;
+            padding: 20px;
+            border: 2px solid #1e40af;
+            border-radius: 8px;
+        }
+        
+        .cover-page .metadata {
+            margin-top: 60px;
+            font-size: 11pt;
+            color: #64748b;
+        }
+        
+        .cover-page .legal-notice {
+            position: absolute;
+            bottom: 50px;
+            left: 0;
+            right: 0;
+            font-size: 8pt;
+            color: #94a3b8;
+            padding: 0 50px;
+            text-align: center;
+            font-style: italic;
+        }
+        
+        /* Headers */
+        h1 {
+            color: #1e40af;
+            font-size: 20pt;
+            border-bottom: 3px solid #1e40af;
+            padding-bottom: 10px;
+            margin-top: 30px;
+            page-break-after: avoid;
+        }
+        
+        h2 {
+            color: #3b82f6;
+            font-size: 16pt;
+            margin-top: 25px;
+            margin-bottom: 12px;
+            page-break-after: avoid;
+        }
+        
+        h3 {
+            color: #475569;
+            font-size: 13pt;
+            margin-top: 15px;
+            margin-bottom: 8px;
+            page-break-after: avoid;
+        }
+        
+        /* Risk Badge */
+        .risk-classification {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 6px solid #1e40af;
+            page-break-inside: avoid;
+        }
+        
+        .risk-badge {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 16pt;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-right: 15px;
+        }
+        
+        .risk-HIGH { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); }
+        .risk-PROHIBITED { background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); }
+        .risk-LIMITED { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+        .risk-MINIMAL { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        
+        .confidence-score {
+            display: inline-block;
+            font-size: 14pt;
+            color: #475569;
+            vertical-align: middle;
+        }
+        
+        /* Info Box */
+        .info-box {
+            background-color: #f8fafc;
+            border-left: 4px solid #3b82f6;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 4px;
+            page-break-inside: avoid;
+        }
+        
+        .warning-box {
+            background-color: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 4px;
+            page-break-inside: avoid;
+        }
+        
+        .danger-box {
+            background-color: #fee2e2;
+            border-left: 4px solid #dc2626;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 4px;
+            page-break-inside: avoid;
+        }
+        
+        /* System Profile */
+        .system-profile {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            page-break-inside: avoid;
+        }
+        
+        .profile-item {
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .profile-item:last-child {
+            border-bottom: none;
+        }
+        
+        .profile-label {
+            font-weight: bold;
+            color: #475569;
+            display: inline-block;
+            width: 150px;
+        }
+        
+        .profile-value {
+            color: #1e293b;
+        }
+        
+        /* Legal References */
+        .legal-reference {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 6px;
+            padding: 12px 16px;
+            margin: 10px 0;
+            font-size: 10pt;
+            page-break-inside: avoid;
+        }
+        
+        .legal-reference strong {
+            color: #1e40af;
+        }
+        
+        .article-link {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        /* Obligations Checklist */
+        .obligations-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .obligations-list li {
+            padding: 10px 0 10px 40px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #f1f5f9;
+            position: relative;
+            page-break-inside: avoid;
+        }
+        
+        .obligations-list li:before {
+            content: "□";
+            position: absolute;
+            left: 10px;
+            font-size: 16pt;
+            color: #3b82f6;
+        }
+        
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            page-break-inside: avoid;
+        }
+        
+        th {
+            background-color: #1e40af;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+        
+        /* Timeline */
+        .timeline-item {
+            padding-left: 30px;
+            border-left: 3px solid #3b82f6;
+            margin-bottom: 20px;
+            position: relative;
+            page-break-inside: avoid;
+        }
+        
+        .timeline-item:before {
+            content: "";
+            position: absolute;
+            left: -8px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #3b82f6;
+            border: 2px solid white;
+        }
+        
+        .timeline-date {
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 5px;
+        }
+        
+        /* Footer */
+        .page-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: #f8fafc;
+            border-top: 2px solid #e2e8f0;
+            padding: 10px 20px;
+            font-size: 9pt;
+            color: #64748b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .executive-summary {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid #0284c7;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 25px 0;
+            page-break-inside: avoid;
+        }
+        
+        .executive-summary h2 {
+            color: #0c4a6e;
+            margin-top: 0;
+        }
+        
+        /* Print specific */
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- COVER PAGE -->
+    <div class="cover-page">
+        <h1>EU AI Act</h1>
+        <div class="subtitle">Compliance Audit Report</div>
+        
+        <div class="system-name">{{ system.name }}</div>
+        
+        <div class="metadata">
+            <p><strong>Report Generated:</strong> {{ date }}</p>
+            <p><strong>Classification:</strong> {{ result.risk_level.value }}</p>
+            <p><strong>Reference:</strong> Regulation (EU) 2024/1689</p>
+        </div>
+        
+        <div class="legal-notice">
+            This report is generated by AI Act Auditor (Open Source Tool) and provides a preliminary compliance assessment based on the information provided. This document does not constitute legal advice. For definitive guidance, please consult with qualified legal counsel specialized in EU AI regulation.
+        </div>
+    </div>
+    
+    <!-- EXECUTIVE SUMMARY -->
+    <div class="executive-summary">
+        <h2>📋 Executive Summary</h2>
+        <p><strong>System Analyzed:</strong> {{ system.name }}</p>
+        <p><strong>Domain:</strong> {{ system.domain }}</p>
+        <p><strong>Classification Result:</strong> <span style="color: #0c4a6e; font-weight: bold;">{{ result.risk_level.value }}</span></p>
+        <p><strong>Key Finding:</strong> {% if result.risk_level.value == "HIGH RISK" %}This system falls under Annex III of the EU AI Act and requires full compliance with Articles 9-15.{% elif result.risk_level.value == "PROHIBITED" %}This system may be prohibited under Article 5 of the EU AI Act. Immediate review required.{% elif result.risk_level.value == "LIMITED RISK" %}This system requires transparency obligations under Articles 50-52.{% else %}This system is not subject to specific AI Act obligations beyond general requirements.{% endif %}</p>
+    </div>
+    
+    <!-- SYSTEM PROFILE -->
+    <h1>1. System Profile</h1>
+    <div class="system-profile">
+        <div class="profile-item">
+            <span class="profile-label">System Name:</span>
+            <span class="profile-value">{{ system.name }}</span>
+        </div>
+        <div class="profile-item">
+            <span class="profile-label">Description:</span>
+            <span class="profile-value">{{ system.description }}</span>
+        </div>
+        <div class="profile-item">
+            <span class="profile-label">Intended Purpose:</span>
+            <span class="profile-value">{{ system.intended_purpose or "Not specified" }}</span>
+        </div>
+        <div class="profile-item">
+            <span class="profile-label">Domain:</span>
+            <span class="profile-value">{{ system.domain }}</span>
+        </div>
+        <div class="profile-item">
+            <span class="profile-label">Development Phase:</span>
+            <span class="profile-value">{{ system.deployment_phase }}</span>
+        </div>
+        <div class="profile-item">
+            <span class="profile-label">Assessment Date:</span>
+            <span class="profile-value">{{ date }}</span>
+        </div>
+    </div>
+    
+    <h2>1.1 Technical Characteristics</h2>
+    <table>
+        <tr>
+            <th>Characteristic</th>
+            <th>Status</th>
+        </tr>
+        <tr>
+            <td>Biometric Identification</td>
+            <td>{{ "Yes" if system.is_biometric else "No" }}</td>
+        </tr>
+        <tr>
+            <td>Critical Infrastructure</td>
+            <td>{{ "Yes" if system.is_critical_infrastructure else "No" }}</td>
+        </tr>
+        <tr>
+            <td>Safety Component</td>
+            <td>{{ "Yes" if system.is_safety_component else "No" }}</td>
+        </tr>
+        <tr>
+            <td>Generative AI</td>
+            <td>{{ "Yes" if system.is_gen_ai else "No" }}</td>
+        </tr>
+    </table>
+    
+    <!-- RISK CLASSIFICATION -->
+    <h1>2. Risk Classification</h1>
+    
+    <div class="risk-classification">
+        <span class="risk-badge risk-{{ result.risk_level.name }}">{{ result.risk_level.value }}</span>
+        <span class="confidence-score">Confidence: {{ (result.risk_score * 100)|int }}%</span>
+    </div>
+    
+    {% if result.risk_level.value == "HIGH RISK" %}
+    <div class="danger-box">
+        <strong>⚠️ HIGH RISK SYSTEM IDENTIFIED</strong><br>
+        This AI system falls under <strong>Annex III</strong> of Regulation (EU) 2024/1689. Stringent requirements apply, including conformity assessment, technical documentation, and ongoing monitoring obligations.
+    </div>
+    {% elif result.risk_level.value == "PROHIBITED" %}
+    <div class="danger-box">
+        <strong>🚫 POTENTIALLY PROHIBITED SYSTEM</strong><br>
+        This system may violate <strong>Article 5</strong> of the EU AI Act. Deployment could result in significant penalties (up to €35 million or 7% of global turnover). Immediate legal review is mandatory.
+    </div>
+    {% elif result.risk_level.value == "LIMITED RISK" %}
+    <div class="warning-box">
+        <strong>ℹ️ LIMITED RISK - TRANSPARENCY REQUIRED</strong><br>
+        This system must comply with transparency obligations under <strong>Articles 50-52</strong>. Users must be informed they are interacting with an AI system.
+    </div>
+    {% else %}
+    <div class="info-box">
+        <strong>✓ MINIMAL RISK SYSTEM</strong><br>
+        This system is not subject to specific AI Act obligations. However, GDPR and other horizontal legislation still apply.
+    </div>
+    {% endif %}
+    
+    <h2>2.1 Legal Justification</h2>
+    <div class="info-box">
+        <strong>Classification Rationale:</strong>
+        <ul>
+            {% for item in result.justification %}
+            <li>{{ item }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+    {% if result.matched_rules %}
+    <h2>2.2 Applicable Legal Provisions</h2>
+    {% for rule in result.matched_rules %}
+    <div class="legal-reference">
+        <strong>{{ rule.category }}</strong> (<span class="article-link">{{ rule.reference }}</span>)<br>
+        <em>{{ rule.reason }}</em><br>
+        <small style="color: #64748b;">Reference: artificialintelligenceact.eu/{{ rule.reference.lower().replace(' ', '-').replace('.', '') }}/</small>
+    </div>
+    {% endfor %}
+    {% endif %}
+    
+    <!-- COMPLIANCE OBLIGATIONS -->
+    <h1>3. Compliance Obligations</h1>
+    
+    <h2>3.1 Mandatory Requirements</h2>
+    <ul class="obligations-list">
+        {% for ob in result.obligations %}
+        <li>{{ ob }}</li>
+        {% endfor %}
+    </ul>
+    
+    <!-- KEY ARTICLES -->
+    <h2>3.2 Key Regulatory Articles</h2>
+    
+    {% if result.risk_level.value == "HIGH RISK" %}
+    <table>
+        <tr>
+            <th>Article</th>
+            <th>Title</th>
+            <th>Key Requirement</th>
+        </tr>
+        <tr>
+            <td>Art. 9</td>
+            <td>Risk Management System</td>
+            <td>Establish continuous risk management throughout lifecycle</td>
+        </tr>
+        <tr>
+            <td>Art. 10</td>
+            <td>Data Governance</td>
+            <td>Ensure data quality, relevance, and representativeness</td>
+        </tr>
+        <tr>
+            <td>Art. 11</td>
+            <td>Technical Documentation</td>
+            <td>Maintain comprehensive technical documentation</td>
+        </tr>
+        <tr>
+            <td>Art. 12</td>
+            <td>Record-Keeping</td>
+            <td>Implement automatic logging of events</td>
+        </tr>
+        <tr>
+            <td>Art. 13</td>
+            <td>Transparency & Information</td>
+            <td>Provide clear information to deployers and users</td>
+        </tr>
+        <tr>
+            <td>Art. 14</td>
+            <td>Human Oversight</td>
+            <td>Enable effective human oversight measures</td>
+        </tr>
+        <tr>
+            <td>Art. 15</td>
+            <td>Accuracy & Robustness</td>
+            <td>Achieve appropriate levels of accuracy and resilience</td>
+        </tr>
+    </table>
+    {% endif %}
+    
+    <!-- IMPLEMENTATION TIMELINE -->
+    <h1>4. Implementation Timeline</h1>
+    
+    <div class="timeline-item">
+        <div class="timeline-date">2 February 2025</div>
+        <div>Prohibition of AI practices (Article 5) enters into force</div>
+    </div>
+    
+    <div class="timeline-item">
+        <div class="timeline-date">2 August 2025</div>
+        <div>Obligations for general-purpose AI models (Chapter V)</div>
+    </div>
+    
+    <div class="timeline-item">
+        <div class="timeline-date">2 August 2026</div>
+        <div>High-risk AI systems (Annex III) - Full compliance required</div>
+    </div>
+    
+    <div class="timeline-item">
+        <div class="timeline-date">2 August 2027</div>
+        <div>Obligations for high-risk AI systems already on market</div>
+    </div>
+    
+    <!-- NEXT STEPS -->
+    <h1>5. Recommended Next Steps</h1>
+    
+    <h2>5.1 Immediate Actions (0-3 months)</h2>
+    <ul>
+        {% for step in result.next_steps[:3] %}
+        <li>{{ step }}</li>
+        {% endfor %}
+        <li>Conduct comprehensive impact assessment</li>
+        <li>Engage legal counsel specialized in EU AI regulation</li>
+        <li>Begin technical documentation preparation</li>
+    </ul>
+    
+    <h2>5.2 Short-term Actions (3-6 months)</h2>
+    <ul>
+        <li>Implement risk management system (Article 9)</li>
+        <li>Establish data governance procedures (Article 10)</li>
+        <li>Design human oversight mechanisms (Article 14)</li>
+        <li>Set up logging and record-keeping infrastructure (Article 12)</li>
+    </ul>
+    
+    <h2>5.3 Medium-term Actions (6-12 months)</h2>
+    <ul>
+        <li>Complete conformity assessment (Article 43)</li>
+        <li>Prepare for market surveillance (Chapter VIII)</li>
+        <li>Train personnel on compliance requirements</li>
+        <li>Establish post-market monitoring system (Article 72)</li>
+    </ul>
+    
+    <!-- KEY DEADLINES -->
+    <div class="warning-box">
+        <strong>⏰ Critical Deadline:</strong> Based on your system classification, you have until <strong>2 August 2026</strong> to achieve full compliance for new high-risk AI systems, or until <strong>2 August 2027</strong> for systems already on the market.
+    </div>
+    
+    <!-- GLOSSARY -->
+    <h1>6. Glossary & References</h1>
+    
+    <h2>6.1 Key Definitions</h2>
+    <div class="info-box">
+        <p><strong>AI System:</strong> Machine-based system that is designed to operate with varying levels of autonomy and that may exhibit adaptiveness after deployment (Article 3(1))</p>
+        <p><strong>Provider:</strong> Natural or legal person that develops an AI system or has an AI system developed with a view to placing it on the market (Article 3(3))</p>
+        <p><strong>Deployer:</strong> Natural or legal person using an AI system under its authority (Article 3(4))</p>
+        <p><strong>High-Risk AI System:</strong> AI system listed in Annex III or subject to product safety legislation listed in Annex I (Article 6)</p>
+    </div>
+    
+    <h2>6.2 Official References</h2>
+    <ul>
+        <li><strong>Primary Legislation:</strong> Regulation (EU) 2024/1689 of the European Parliament and of the Council</li>
+        <li><strong>Official Text:</strong> eur-lex.europa.eu/eli/reg/2024/1689/oj</li>
+        <li><strong>Annotated Version:</strong> artificialintelligenceact.eu</li>
+        <li><strong>National Implementation:</strong> Consult your national AI authority</li>
+    </ul>
+    
+    <h2>6.3 Additional Resources</h2>
+    <ul>
+        <li>European AI Office: digital-strategy.ec.europa.eu/en/policies/ai-office</li>
+        <li>AI Pact (Voluntary Commitments): digital-strategy.ec.europa.eu/en/policies/ai-pact</li>
+        <li>Standardization Requests: CEN-CENELEC JTC 21</li>
+        <li>Conformity Assessment Bodies: National notified body database</li>
+    </ul>
+    
+    <!-- DISCLAIMER -->
+    <div style="margin-top: 50px; padding: 20px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 9pt; color: #64748b;">
+        <h3 style="color: #475569; font-size: 11pt;">⚖️ Legal Disclaimer</h3>
+        <p>This report is automatically generated based on the information provided during the assessment process. While we strive for accuracy, this tool:</p>
+        <ul style="margin: 10px 0;">
+            <li>Does not constitute legal advice</li>
+            <li>Should not replace consultation with qualified legal counsel</li>
+            <li>Reflects the regulatory landscape as of the generation date</li>
+            <li>May require updates as guidance and standards evolve</li>
+        </ul>
+        <p><strong>Recommendation:</strong> Engage with legal experts, conformity assessment bodies, and your national AI authority for definitive guidance specific to your use case.</p>
+        <p style="margin-top: 15px; font-style: italic;"><strong>Generated by:</strong> AI Act Auditor (Open Source Tool) | <strong>Version:</strong> 1.0 | <strong>License:</strong> MIT</p>
+    </div>
+</body>
+</html>

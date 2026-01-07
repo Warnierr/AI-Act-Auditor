@@ -3,7 +3,12 @@ AI Advisor Chat Endpoint
 Provides LLM-powered advice with RAG for EU AI Act compliance
 """
 
+import asyncio
+import json
+import re
+
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import Optional
 from core.advisor import get_ai_advice
@@ -59,6 +64,53 @@ async def ask_advisor(request: ChatRequest):
         raise HTTPException(
             status_code=500,
             detail=f"Error getting AI advice: {str(e)}"
+        )
+
+
+def _tokenize_answer(answer: str) -> list[str]:
+    # Keep whitespace separated tokens to preserve formatting
+    return re.findall(r'\S+\s*', answer)
+
+
+@router.post("/stream")
+async def stream_advisor(request: ChatRequest):
+    """
+    Stream AI advice token by token to mimic GPT-like streaming.
+    """
+    try:
+        result = await get_ai_advice(
+            question=request.question,
+            system_data=request.system_data,
+            risk_level=request.risk_level,
+            language=request.language
+        )
+
+        tokens = _tokenize_answer(result["answer"])
+
+        async def event_generator():
+            for token in tokens:
+                payload = {"type": "token", "content": token}
+                yield f"data: {json.dumps(payload)}\n\n"
+                await asyncio.sleep(0)
+
+            done_payload = {
+                "type": "done",
+                "sources": result["sources"],
+                "model": result["model"]
+            }
+            yield f"data: {json.dumps(done_payload)}\n\n"
+
+        return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f"AI Advisor not configured: {str(e)}"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error streaming AI advice: {str(e)}"
         )
 
 

@@ -96,20 +96,62 @@ class RuleEngine:
         
         text_corpus = (system.description + " " + system.intended_purpose + " " + (system.domain or "")).lower()
 
-        # 1. Check Prohibited Practices
-        prohibited_keywords = ["social scoring", "subliminal", "manipulative", "exploit vulnerabilities"]
-        for kw in prohibited_keywords:
-            if kw in text_corpus:
-                return AnalysisResult(
-                    risk_level=RiskLevel.UNACCEPTABLE,
-                    risk_score=1.0,
-                    justification=[t["prohibited_justification"].format(kw=kw)],
-                    matched_rules=[MatchedRule(rule_id="ART_5", category="Prohibited" if lang=="en" else "Prohibé", reason=f"Keyword match: {kw}", reference="Article 5")],
-                    obligations=t["obligations"][RiskLevel.UNACCEPTABLE],
-                    next_steps=t["next_steps"][RiskLevel.UNACCEPTABLE]
-                )
+        # 1. Check Prohibited Practices (Article 5)
+        PROHIBITED_PATTERNS = {
+            "5.1.a_subliminal": {
+                "keywords_en": ["subliminal", "subconscious manipulation", "hidden manipulation", "imperceptible techniques", "subliminal technique"],
+                "keywords_fr": ["subliminal", "manipulation subliminale", "manipulation inconsciente", "techniques imperceptibles", "technique subliminale"],
+                "confidence": 1.0,
+                "article": "Article 5.1.a"
+            },
+            "5.1.b_vulnerability": {
+                "keywords_en": ["exploit vulnerabilities", "vulnerable groups", "children exploitation", "disability exploitation", "economic vulnerability", "exploit vulnerability", "exploiting vulnerable"],
+                "keywords_fr": ["exploiter vulnérabilités", "groupes vulnérables", "exploitation enfants", "exploitation handicap", "vulnérabilité économique", "exploiter vulnérabilité", "exploiter personnes vulnérables"],
+                "confidence": 1.0,
+                "article": "Article 5.1.b"
+            },
+            "5.1.c_social_scoring": {
+                "keywords_en": ["social scoring", "social credit", "citizen scoring", "behavior scoring", "social rating", "trustworthiness score", "reputation system", "citizen score", "social score", "behavior rating"],
+                "keywords_fr": ["notation sociale", "crédit social", "score citoyen", "notation comportement", "évaluation sociale", "score fiabilité", "système réputation", "score comportement", "notation citoyenne"],
+                "confidence": 1.0,
+                "article": "Article 5.1.c"
+            },
+            "5.1.d_predictive_risk": {
+                "keywords_en": ["predictive policing", "crime prediction", "risk profiling", "recidivism prediction", "pre-crime", "predict crime", "criminal risk assessment"],
+                "keywords_fr": ["police prédictive", "prédiction crime", "profilage risque", "prédiction récidive", "prédire crime", "évaluation risque criminel"],
+                "confidence": 1.0,
+                "article": "Article 5.1.d"
+            },
+            "5_manipulative": {
+                "keywords_en": ["manipulative", "manipulation technique", "coercive", "deceptive ai"],
+                "keywords_fr": ["manipulatif", "technique manipulation", "coercitif", "ia trompeuse"],
+                "confidence": 0.95,
+                "article": "Article 5"
+            }
+        }
+        
+        # Check prohibited patterns with language-aware keywords
+        for pattern_id, pattern in PROHIBITED_PATTERNS.items():
+            keywords = pattern[f"keywords_{lang}"] if lang in ["en", "fr"] else pattern["keywords_en"]
+            for kw in keywords:
+                if kw in text_corpus:
+                    article_ref = pattern["article"]
+                    return AnalysisResult(
+                        risk_level=RiskLevel.UNACCEPTABLE,
+                        risk_score=pattern["confidence"],
+                        justification=[t["prohibited_justification"].format(kw=kw) + f" ({article_ref})"],
+                        matched_rules=[MatchedRule(
+                            rule_id=pattern_id, 
+                            category="Prohibited Practice" if lang=="en" else "Pratique Interdite", 
+                            reason=f"Keyword match: {kw}", 
+                            reference=article_ref
+                        )],
+                        obligations=t["obligations"][RiskLevel.UNACCEPTABLE],
+                        next_steps=t["next_steps"][RiskLevel.UNACCEPTABLE]
+                    )
 
         # 2. Check High-Risk (Annex III)
+        keyword_matches = []
         for rule in RuleEngine._annex_iii_rules:
             for kw in rule.get("keywords", []):
                 if kw in text_corpus:
@@ -119,13 +161,25 @@ class RuleEngine:
                         reason=f"Detected match: {kw}" if lang=="en" else f"Correspondance détectée : {kw}",
                         reference=rule['article_ref']
                     ))
+                    keyword_matches.append(kw)
 
+        # Count user-provided flags
+        user_flags_count = 0
         if system.is_biometric:
-            matched_rules.append(MatchedRule(rule_id="MANUAL_BIO", category="Biometrics", reason="User flagged biometrics", reference="Annex III, 1"))
+            matched_rules.append(MatchedRule(rule_id="MANUAL_BIO", category="Biometrics", reason="User flagged biometrics" if lang=="en" else "Utilisateur a signalé biométrie", reference="Annex III, 1"))
+            user_flags_count += 1
         if system.is_critical_infrastructure:
-            matched_rules.append(MatchedRule(rule_id="MANUAL_CRIT", category="Critical Infrastructure", reason="User flagged critical infrastructure", reference="Annex III, 2"))
+            matched_rules.append(MatchedRule(rule_id="MANUAL_CRIT", category="Critical Infrastructure", reason="User flagged critical infrastructure" if lang=="en" else "Utilisateur a signalé infrastructure critique", reference="Annex III, 2"))
+            user_flags_count += 1
         if system.is_safety_component:
-            matched_rules.append(MatchedRule(rule_id="MANUAL_SAFE", category="Safety", reason="User flagged safety component", reference="Annex II"))
+            matched_rules.append(MatchedRule(rule_id="MANUAL_SAFE", category="Safety", reason="User flagged safety component" if lang=="en" else "Utilisateur a signalé composant de sécurité", reference="Annex II"))
+            user_flags_count += 1
+        
+        # Check additional context fields if provided
+        if hasattr(system, 'user_type') and system.user_type == 'vulnerable_groups':
+            keyword_matches.append('vulnerable_groups')
+        if hasattr(system, 'affects_rights') and system.affects_rights:
+            keyword_matches.append('affects_rights')
 
         if matched_rules:
             risk_level = RiskLevel.HIGH
@@ -146,9 +200,39 @@ class RuleEngine:
         if risk_level == RiskLevel.MINIMAL:
             justification.append(t["minimal_justification"])
 
+        # Calculate confidence score based on evidence quality
+        def calculate_confidence(risk_level: RiskLevel, matched_rules_count: int, user_flags_count: int, keyword_matches_count: int) -> float:
+            if risk_level == RiskLevel.UNACCEPTABLE:
+                return 1.0  # Always 100% for prohibited practices
+            elif risk_level == RiskLevel.HIGH:
+                # High confidence if multiple sources of evidence
+                if keyword_matches_count >= 2 and user_flags_count >= 1:
+                    return 0.95
+                elif keyword_matches_count >= 1 and user_flags_count >= 1:
+                    return 0.85
+                elif user_flags_count >= 2:
+                    return 0.80
+                elif user_flags_count >= 1:
+                    return 0.75
+                else:
+                    return 0.70
+            elif risk_level == RiskLevel.LIMITED:
+                # Medium confidence for transparency obligations
+                return 0.70 if matched_rules_count > 0 else 0.60
+            else:
+                # Low confidence for minimal risk (default)
+                return 0.50
+        
+        confidence_score = calculate_confidence(
+            risk_level, 
+            len(matched_rules), 
+            user_flags_count, 
+            len(set(keyword_matches))
+        )
+
         return AnalysisResult(
             risk_level=risk_level,
-            risk_score=1.0 if risk_level in [RiskLevel.UNACCEPTABLE, RiskLevel.HIGH] else 0.5,
+            risk_score=confidence_score,
             justification=justification,
             matched_rules=matched_rules,
             obligations=t["obligations"][risk_level],

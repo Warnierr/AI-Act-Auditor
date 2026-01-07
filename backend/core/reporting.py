@@ -10,14 +10,23 @@ class PDFGenerator:
         template_dir = os.path.join(os.path.dirname(__file__), 'templates')
         self.env = Environment(loader=FileSystemLoader(template_dir))
 
-    def generate_report(self, system: AISystemInput, result: AnalysisResult) -> BytesIO:
-        template = self.env.get_template('report.html')
+    def generate_report(self, system: AISystemInput, result: AnalysisResult, professional: bool = True) -> BytesIO:
+        """
+        Generate a PDF compliance report
+        
+        Args:
+            system: AI system information
+            result: Analysis result
+            professional: Use professional template (default: True)
+        """
+        template_name = 'report_professional.html' if professional else 'report.html'
+        template = self.env.get_template(template_name)
         
         # Prepare context
         context = {
             "system": system,
             "result": result,
-            "date": datetime.now().strftime("%Y-%m-%d %H:%M")
+            "date": datetime.now().strftime("%d %B %Y at %H:%M")
         }
         
         html_content = template.render(context)

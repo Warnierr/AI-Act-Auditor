@@ -214,6 +214,61 @@
     }
   }
 
+  /* Mesh gradient background */
+  .mesh-gradient {
+    background: linear-gradient(135deg, 
+      hsl(var(--background)) 0%, 
+      hsl(var(--secondary)) 50%, 
+      hsl(var(--background)) 100%);
+    background-size: 400% 400%;
+    animation: mesh-animation 15s ease infinite;
+  }
+
+  @keyframes mesh-animation {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  /* Noise overlay */
+  .noise-overlay {
+    position: relative;
+  }
+
+  .noise-overlay::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .noise-overlay > * {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Float animation */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  .float {
+    animation: float 6s ease-in-out infinite;
+  }
+
   /* Premium button styles */
   .btn-premium {
     position: relative;
@@ -258,5 +313,338 @@
     color: hsl(var(--foreground));
     font-size: 0.75rem;
     font-weight: 600;
+  }
+
+  /* Scrollbar styling */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted)) hsl(var(--secondary));
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: hsl(var(--secondary));
+    border-radius: 4px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted));
+    border-radius: 4px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground));
+  }
+}
+
+/* =========================
+   PRINT STYLES - Professional Report
+   ========================= */
+@media print {
+  /* Reset and cleanup */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* Hide navigation and UI elements */
+  nav, 
+  header:not(.print-header), 
+  footer:not(.print-footer),
+  button:not(.print-button),
+  .no-print,
+  [class*="sidebar"],
+  [class*="navigation"],
+  .chat-widget {
+    display: none !important;
+  }
+  
+  /* Page setup */
+  @page {
+    size: A4 portrait;
+    margin: 2cm 1.5cm;
+  }
+  
+  body {
+    font-size: 11pt;
+    line-height: 1.6;
+    color: #000;
+    background: white;
+  }
+  
+  /* Typography for print */
+  h1 {
+    font-size: 20pt;
+    color: #1e40af;
+    border-bottom: 2px solid #1e40af;
+    padding-bottom: 8pt;
+    margin-top: 0;
+    page-break-after: avoid;
+  }
+  
+  h2 {
+    font-size: 16pt;
+    color: #3b82f6;
+    margin-top: 18pt;
+    margin-bottom: 10pt;
+    page-break-after: avoid;
+  }
+  
+  h3 {
+    font-size: 13pt;
+    color: #475569;
+    margin-top: 12pt;
+    margin-bottom: 8pt;
+    page-break-after: avoid;
+  }
+  
+  p, ul, ol {
+    orphans: 3;
+    widows: 3;
+  }
+  
+  /* Avoid page breaks inside these elements */
+  .print-keep-together,
+  .card,
+  .info-box,
+  table,
+  figure,
+  .code-block,
+  .risk-classification,
+  .obligation-item {
+    page-break-inside: avoid;
+  }
+  
+  /* Risk badges */
+  .risk-badge {
+    padding: 8pt 16pt;
+    border-radius: 4pt;
+    font-weight: bold;
+    color: white !important;
+    display: inline-block;
+    -webkit-print-color-adjust: exact;
+  }
+  
+  .risk-badge[data-risk="HIGH"],
+  .risk-badge.risk-high {
+    background: #f97316 !important;
+  }
+  
+  .risk-badge[data-risk="PROHIBITED"],
+  .risk-badge.risk-prohibited {
+    background: #dc2626 !important;
+  }
+  
+  .risk-badge[data-risk="LIMITED"],
+  .risk-badge.risk-limited {
+    background: #3b82f6 !important;
+  }
+  
+  .risk-badge[data-risk="MINIMAL"],
+  .risk-badge.risk-minimal {
+    background: #10b981 !important;
+  }
+  
+  /* Cards and boxes */
+  .card, .info-box, .warning-box {
+    border: 1px solid #e2e8f0;
+    padding: 12pt;
+    margin: 10pt 0;
+    border-radius: 4pt;
+    background: #f8fafc !important;
+  }
+  
+  .warning-box {
+    border-left: 4pt solid #f59e0b;
+    background: #fef3c7 !important;
+  }
+  
+  .danger-box {
+    border-left: 4pt solid #dc2626;
+    background: #fee2e2 !important;
+  }
+  
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12pt 0;
+  }
+  
+  th {
+    background: #1e40af !important;
+    color: white !important;
+    padding: 8pt;
+    text-align: left;
+    font-weight: 600;
+    border: 1px solid #1e40af;
+  }
+  
+  td {
+    padding: 6pt 8pt;
+    border: 1px solid #e2e8f0;
+  }
+  
+  tr:nth-child(even) {
+    background: #f8fafc !important;
+  }
+  
+  /* Lists */
+  ul, ol {
+    padding-left: 20pt;
+    margin: 8pt 0;
+  }
+  
+  li {
+    margin-bottom: 4pt;
+  }
+  
+  /* Checkboxes for obligations */
+  .obligation-checkbox::before {
+    content: "☐ ";
+    font-size: 14pt;
+    margin-right: 6pt;
+    color: #3b82f6;
+  }
+  
+  /* Links */
+  a {
+    color: #2563eb;
+    text-decoration: underline;
+  }
+  
+  a[href]:after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    color: #64748b;
+  }
+  
+  /* Print header */
+  .print-header {
+    margin-bottom: 20pt;
+    padding-bottom: 10pt;
+    border-bottom: 2px solid #e2e8f0;
+  }
+  
+  .print-header h1 {
+    border-bottom: none;
+    margin-bottom: 6pt;
+  }
+  
+  .print-date {
+    font-size: 10pt;
+    color: #64748b;
+  }
+  
+  /* Print footer on each page */
+  .print-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding-top: 8pt;
+    border-top: 1px solid #e2e8f0;
+    font-size: 8pt;
+    color: #64748b;
+    text-align: center;
+  }
+  
+  /* System profile */
+  .system-profile-print {
+    background: white;
+    border: 1px solid #e2e8f0;
+    padding: 12pt;
+    margin: 12pt 0;
+  }
+  
+  .profile-row {
+    display: flex;
+    padding: 6pt 0;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  
+  .profile-label {
+    font-weight: bold;
+    color: #475569;
+    width: 150pt;
+  }
+  
+  .profile-value {
+    color: #1e293b;
+  }
+  
+  /* Legal references */
+  .legal-ref {
+    background: #eff6ff !important;
+    border: 1px solid #bfdbfe;
+    padding: 8pt;
+    margin: 8pt 0;
+    border-radius: 3pt;
+  }
+  
+  .legal-ref strong {
+    color: #1e40af;
+  }
+  
+  /* Article citations */
+  .article-cite {
+    font-style: italic;
+    color: #2563eb;
+    font-weight: 600;
+  }
+  
+  /* Timeline for print */
+  .timeline-print {
+    margin: 12pt 0;
+  }
+  
+  .timeline-item {
+    padding-left: 20pt;
+    margin-bottom: 10pt;
+    border-left: 2pt solid #3b82f6;
+    position: relative;
+  }
+  
+  .timeline-date {
+    font-weight: bold;
+    color: #1e40af;
+  }
+  
+  /* Executive summary box */
+  .executive-summary {
+    background: linear-gradient(to bottom, #f0f9ff 0%, #e0f2fe 100%) !important;
+    border: 2px solid #0284c7;
+    padding: 15pt;
+    margin: 15pt 0;
+    border-radius: 6pt;
+  }
+  
+  /* Print page breaks */
+  .page-break-before {
+    page-break-before: always;
+  }
+  
+  .page-break-after {
+    page-break-after: always;
+  }
+  
+  /* Utility: show only in print */
+  .print-only {
+    display: block !important;
+  }
+  
+  /* Hide badges that are decorative */
+  .badge.decorative {
+    display: none;
+  }
+  
+  /* Ensure dark mode doesn't affect print */
+  [data-theme] {
+    color: #000 !important;
+    background: white !important;
   }
 }
