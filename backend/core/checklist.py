@@ -201,6 +201,39 @@ HIGH_RISK_CHECKLIST = [
         category="Legal Compliance",
         priority="high"
     ),
+    # Medical/Health-specific items
+    ChecklistItem(
+        title="Implement Emergency Redirect Protocol",
+        description="Establish clear mechanisms to redirect users to emergency services (112/SAMU) when critical symptoms are detected",
+        article="Article 14 / Medical Safety",
+        link="https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+        category="Medical Safety",
+        priority="critical"
+    ),
+    ChecklistItem(
+        title="Display Medical Disclaimer",
+        description="Show prominent disclaimer that AI does not replace professional medical advice and users should consult healthcare professionals",
+        article="Article 13",
+        link="https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+        category="Medical Safety",
+        priority="critical"
+    ),
+    ChecklistItem(
+        title="Ensure Health Data Protection",
+        description="Comply with GDPR Article 9 special categories for health data processing, including explicit consent and data minimization",
+        article="GDPR Art. 9 / AI Act Art. 10",
+        link="https://gdpr-info.eu/art-9-gdpr/",
+        category="Data Protection",
+        priority="critical"
+    ),
+    ChecklistItem(
+        title="Implement Medical Human Oversight",
+        description="Ensure healthcare professional supervision for diagnostic recommendations; system must not replace clinical judgment",
+        article="Article 14",
+        link="https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+        category="Medical Safety",
+        priority="critical"
+    ),
 ]
 
 
@@ -245,6 +278,39 @@ LIMITED_RISK_CHECKLIST = [
         link="https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
         category="Best Practices",
         priority="medium"
+    ),
+    # Deepfake/Synthetic Content specific items
+    ChecklistItem(
+        title="Implement Content Watermarking",
+        description="Apply technical watermark/signature to all AI-generated images, videos, audio, and avatars for identification",
+        article="Article 50(2)",
+        link="https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+        category="Deepfake Safety",
+        priority="critical"
+    ),
+    ChecklistItem(
+        title="Maintain Content Generation Registry",
+        description="Log all generated content: prompt, model version, timestamp, user ID for traceability and audit purposes",
+        article="Article 50",
+        link="https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+        category="Deepfake Safety",
+        priority="high"
+    ),
+    ChecklistItem(
+        title="Add Visible AI-Generated Label",
+        description="Display clear 'AI-generated' or 'Synthetically created' label visible to end users on all outputs",
+        article="Article 50(4)",
+        link="https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+        category="Deepfake Safety",
+        priority="critical"
+    ),
+    ChecklistItem(
+        title="Implement Abuse Prevention",
+        description="Block generation of politically sensitive or deceptive content; establish takedown procedures for misuse",
+        article="Article 50 / Best Practice",
+        link="https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+        category="Deepfake Safety",
+        priority="high"
     ),
 ]
 
@@ -301,7 +367,7 @@ def get_checklist(risk_level: str) -> List[Dict]:
     elif "high" in risk_level.lower():
         checklist = HIGH_RISK_CHECKLIST
     elif "limited" in risk_level.lower():
-        checklist = LIMITED_CHECKLIST
+        checklist = LIMITED_RISK_CHECKLIST
     else:  # Minimal or unknown
         checklist = MINIMAL_RISK_CHECKLIST
     

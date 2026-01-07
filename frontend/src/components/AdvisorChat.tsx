@@ -113,6 +113,51 @@ const getClarifyingQuestions = (systemData: any, locale: string) => {
     ]
 }
 
+// Sector-specific questions for Health and Deepfake use cases
+const getSectorSpecificQuestions = (systemData: any, locale: string) => {
+    const questions: string[] = []
+
+    // Health domain questions
+    if (systemData?.health_domain) {
+        if (locale === 'fr') {
+            questions.push(
+                "🏥 Comment implémenter la redirection d'urgence vers le 15/112 ?",
+                "🏥 Quels disclaimers médicaux sont obligatoires ?",
+                "🏥 Quelle supervision humaine pour un chatbot médical ?",
+                "🏥 Mon système peut-il bénéficier de l'exemption Article 6(3) ?"
+            )
+        } else {
+            questions.push(
+                "🏥 How to implement emergency redirect to emergency services?",
+                "🏥 What medical disclaimers are mandatory?",
+                "🏥 What human oversight for a medical chatbot?",
+                "🏥 Can my system qualify for Article 6(3) exemption?"
+            )
+        }
+    }
+
+    // Synthetic content / Deepfake questions
+    if (systemData?.generates_synthetic_content) {
+        if (locale === 'fr') {
+            questions.push(
+                "🎭 Comment watermarker le contenu généré (Article 50) ?",
+                "🎭 Quel registre de traçabilité pour les deepfakes ?",
+                "🎭 Comment labelliser 'IA-generated' sur mes images/vidéos ?",
+                "🎭 Quelles métadonnées logger pour la conformité ?"
+            )
+        } else {
+            questions.push(
+                "🎭 How to watermark generated content (Article 50)?",
+                "🎭 What traceability registry for deepfakes?",
+                "🎭 How to label 'AI-generated' on my images/videos?",
+                "🎭 What metadata to log for compliance?"
+            )
+        }
+    }
+
+    return questions
+}
+
 interface AdvisorChatProps {
     systemData: any
     riskLevel: string
@@ -224,6 +269,7 @@ Can you give me targeted advice and next steps?`
 
     const suggestedQuestions = getSuggestedQuestions(riskLevel, locale)
     const clarifyingQuestions = getClarifyingQuestions(systemData, locale)
+    const sectorQuestions = getSectorSpecificQuestions(systemData, locale)
     const upgradeHint = locale === 'fr'
         ? "Pour aller plus loin, envisagez Claude 4 ou GPT-4.1 via OpenRouter (option payante)."
         : "For deeper insights, consider Claude 4 or GPT-4.1 via OpenRouter (paid option)."
@@ -262,7 +308,7 @@ Can you give me targeted advice and next steps?`
             </CardHeader>
 
             <CardContent className="p-0 space-y-0">
-                <div className="h-[320px] sm:h-[440px] overflow-y-auto p-4 sm:p-6 space-y-3 scrollbar-thin bg-card/70">
+                <div className="h-[400px] sm:h-[560px] overflow-y-auto p-4 sm:p-6 space-y-3 scrollbar-thin bg-card/70">
                     {messages.map((msg) => (
                         <div
                             key={msg.id}
@@ -361,6 +407,27 @@ Can you give me targeted advice and next steps?`
                         ))}
                     </div>
                 </div>
+
+                {/* Sector-specific questions (Health / Deepfake) */}
+                {sectorQuestions.length > 0 && (
+                    <div className="px-4 sm:px-6 py-3 border-t border-border bg-gradient-to-r from-rose-500/10 to-purple-500/10">
+                        <p className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
+                            {locale === 'fr' ? '🎯 Questions sectorielles (Santé / Deepfake)' : '🎯 Sector Questions (Health / Deepfake)'}
+                        </p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+                            {sectorQuestions.map((question, idx) => (
+                                <button
+                                    key={`sector-${idx}`}
+                                    type="button"
+                                    onClick={() => setInput(question)}
+                                    className="text-left text-[11px] px-3 py-2 rounded-xl border border-rose-200 bg-card hover:border-purple-400 hover:bg-purple-50 transition-colors text-foreground"
+                                >
+                                    {question}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 <form onSubmit={handleSubmit} className="px-4 sm:px-6 py-4 border-t border-border bg-card">
                     {error && (

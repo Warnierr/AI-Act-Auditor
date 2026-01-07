@@ -27,6 +27,15 @@ export interface AISystemInput {
     // Limited Risk (Transparency obligations)
     is_gen_ai: boolean;            // Generative AI (chatbots, content generation)
 
+    // Health Domain fields (Annex III, 5)
+    health_domain?: boolean;       // System operates in health/medical domain
+    influences_diagnosis?: boolean; // Influences diagnostic or treatment decisions
+    is_administrative_only?: boolean; // Purely administrative tasks (ICD-10, scheduling)
+
+    // Synthetic Content / Deepfake fields (Article 50)
+    generates_synthetic_content?: boolean; // Generates realistic images/video/audio/avatars
+    content_types?: ("image" | "video" | "audio" | "avatar" | "text")[];
+
     // NEW: Enhanced audit questions
     user_type?: "general_public" | "professionals" | "vulnerable_groups" | "mixed";
     data_types?: ("personal" | "sensitive" | "biometric" | "financial" | "health" | "none")[];

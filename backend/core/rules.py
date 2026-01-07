@@ -175,6 +175,42 @@ class RuleEngine:
             matched_rules.append(MatchedRule(rule_id="MANUAL_SAFE", category="Safety", reason="User flagged safety component" if lang=="en" else "Utilisateur a signalé composant de sécurité", reference="Annex II"))
             user_flags_count += 1
         
+        # Health Domain Classification (Annex III, 5)
+        if hasattr(system, 'health_domain') and system.health_domain:
+            if hasattr(system, 'influences_diagnosis') and system.influences_diagnosis:
+                # Health system that influences diagnosis/treatment = HIGH RISK
+                matched_rules.append(MatchedRule(
+                    rule_id="HEALTH_DIAGNOSIS", 
+                    category="Health / Medical" if lang=="en" else "Santé / Médical", 
+                    reason="System influences diagnosis or treatment decisions" if lang=="en" else "Le système influence les décisions de diagnostic ou de traitement", 
+                    reference="Annex III, 5.a"
+                ))
+                user_flags_count += 1
+            elif hasattr(system, 'is_administrative_only') and system.is_administrative_only:
+                # Purely administrative health task - exemption under Art. 6(3)
+                justification.append(
+                    "Health system performing purely administrative tasks (ICD-10 coding, scheduling). Article 6(3) exemption may apply if the task is narrow, does not replace human evaluation, and has no direct impact on patient care." 
+                    if lang=="en" else 
+                    "Système de santé effectuant des tâches purement administratives (codage CIM-10, planification). L'exemption de l'article 6(3) peut s'appliquer si la tâche est étroite, ne remplace pas l'évaluation humaine et n'a pas d'impact direct sur les soins aux patients."
+                )
+        
+        # Synthetic Content / Deepfake Detection (Article 50)
+        article_50_triggered = False
+        if hasattr(system, 'generates_synthetic_content') and system.generates_synthetic_content:
+            article_50_triggered = True
+            content_desc = ", ".join(system.content_types) if system.content_types else "synthetic content"
+            matched_rules.append(MatchedRule(
+                rule_id="ART_50_DEEPFAKE", 
+                category="Deepfake / Synthetic Content" if lang=="en" else "Deepfake / Contenu Synthétique", 
+                reason=f"Generates realistic {content_desc}" if lang=="en" else f"Génère du contenu réaliste : {content_desc}", 
+                reference="Article 50(2-4)"
+            ))
+            justification.append(
+                f"System generates synthetic content ({content_desc}). Article 50 transparency obligations apply: labeling, watermarking, and traceability required."
+                if lang=="en" else
+                f"Le système génère du contenu synthétique ({content_desc}). Les obligations de transparence de l'article 50 s'appliquent : étiquetage, filigrane et traçabilité requis."
+            )
+        
         # Check additional context fields if provided
         if hasattr(system, 'user_type') and system.user_type == 'vulnerable_groups':
             keyword_matches.append('vulnerable_groups')
@@ -195,6 +231,10 @@ class RuleEngine:
                     justification.append(t["limited_justification"].format(kw=kw))
                     matched_rules.append(MatchedRule(rule_id="ART_50", category="Transparency", reason=f"Keyword match: {kw}", reference="Article 50"))
                     break
+        
+        # If Article 50 triggered but no other High Risk, ensure Limited Risk minimum
+        if article_50_triggered and risk_level == RiskLevel.MINIMAL:
+            risk_level = RiskLevel.LIMITED
 
         # 4. Final results
         if risk_level == RiskLevel.MINIMAL:

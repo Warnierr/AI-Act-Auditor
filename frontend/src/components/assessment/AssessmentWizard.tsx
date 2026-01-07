@@ -71,6 +71,14 @@ export default function AssessmentWizard() {
         migration: false,
         justice: false,
         is_gen_ai: false,
+        // Health Domain (Annex III, 5)
+        health_domain: false,
+        influences_diagnosis: false,
+        is_administrative_only: false,
+        // Synthetic Content (Article 50)
+        generates_synthetic_content: false,
+        content_types: [],
+        // Other fields
         user_type: "general_public",
         data_types: [],
         affects_rights: false,
@@ -447,6 +455,157 @@ export default function AssessmentWizard() {
                                                     </div>
                                                 </div>
                                             </div>
+                                        </div>
+
+                                        {/* Health Domain Section */}
+                                        <div className="space-y-3 sm:space-y-4 pt-2">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xl">🏥</span>
+                                                <h3 className="text-sm sm:text-base font-bold text-foreground">
+                                                    {locale === 'fr' ? 'Domaine Santé (Annexe III, 5)' : 'Health Domain (Annex III, 5)'}
+                                                </h3>
+                                            </div>
+                                            <div
+                                                onClick={() => handleCheckboxChange('health_domain', !formData.health_domain)}
+                                                className={`cursor-pointer p-3 sm:p-4 rounded-xl border-2 transition-all hover:shadow-md ${formData.health_domain
+                                                    ? 'bg-rose-50 border-rose-300 shadow-rose-100'
+                                                    : 'bg-card border-border hover:border-rose-200'
+                                                    }`}
+                                            >
+                                                <div className="flex items-start gap-2 sm:gap-3">
+                                                    <Checkbox
+                                                        checked={formData.health_domain}
+                                                        className={formData.health_domain ? "data-[state=checked]:bg-rose-500 border-rose-500" : ""}
+                                                    />
+                                                    <div className="flex-1">
+                                                        <div className="font-bold text-xs sm:text-sm text-foreground">
+                                                            {locale === 'fr' ? "Système opérant dans le domaine de la santé/médical" : "System operates in health/medical domain"}
+                                                        </div>
+                                                        <div className="text-[10px] sm:text-xs text-muted-foreground leading-tight mt-0.5 sm:mt-1">
+                                                            {locale === 'fr'
+                                                                ? "Chatbots médicaux, analyse de symptômes, aide au diagnostic, recommandations de traitement."
+                                                                : "Medical chatbots, symptom analysis, diagnosis assistance, treatment recommendations."}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Conditional health questions */}
+                                            {formData.health_domain && (
+                                                <div className="ml-4 space-y-2 border-l-2 border-rose-200 pl-4">
+                                                    <div
+                                                        onClick={() => handleCheckboxChange('influences_diagnosis', !formData.influences_diagnosis)}
+                                                        className={`cursor-pointer p-3 rounded-lg border transition-all ${formData.influences_diagnosis
+                                                            ? 'bg-red-50 border-red-400'
+                                                            : 'bg-card border-border'
+                                                            }`}
+                                                    >
+                                                        <div className="flex items-start gap-2">
+                                                            <Checkbox checked={formData.influences_diagnosis} />
+                                                            <div>
+                                                                <div className="font-semibold text-xs text-foreground">
+                                                                    {locale === 'fr' ? "⚠️ Influence les décisions de diagnostic ou traitement" : "⚠️ Influences diagnosis or treatment decisions"}
+                                                                </div>
+                                                                <div className="text-[10px] text-muted-foreground">
+                                                                    {locale === 'fr' ? "Directement ou via recommandations → Classement HIGH RISK" : "Directly or via recommendations → HIGH RISK classification"}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        onClick={() => handleCheckboxChange('is_administrative_only', !formData.is_administrative_only)}
+                                                        className={`cursor-pointer p-3 rounded-lg border transition-all ${formData.is_administrative_only
+                                                            ? 'bg-green-50 border-green-400'
+                                                            : 'bg-card border-border'
+                                                            }`}
+                                                    >
+                                                        <div className="flex items-start gap-2">
+                                                            <Checkbox checked={formData.is_administrative_only} />
+                                                            <div>
+                                                                <div className="font-semibold text-xs text-foreground">
+                                                                    {locale === 'fr' ? "✅ Tâches purement administratives" : "✅ Purely administrative tasks"}
+                                                                </div>
+                                                                <div className="text-[10px] text-muted-foreground">
+                                                                    {locale === 'fr' ? "Codage CIM-10, structuration de documents, planification (exemption Art. 6(3) possible)" : "ICD-10 coding, document structuring, scheduling (Art. 6(3) exemption possible)"}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Synthetic Content / Deepfake Section */}
+                                        <div className="space-y-3 sm:space-y-4 pt-2">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xl">🎭</span>
+                                                <h3 className="text-sm sm:text-base font-bold text-foreground">
+                                                    {locale === 'fr' ? 'Contenu Synthétique / Deepfake (Article 50)' : 'Synthetic Content / Deepfake (Article 50)'}
+                                                </h3>
+                                            </div>
+                                            <div
+                                                onClick={() => handleCheckboxChange('generates_synthetic_content', !formData.generates_synthetic_content)}
+                                                className={`cursor-pointer p-3 sm:p-4 rounded-xl border-2 transition-all hover:shadow-md ${formData.generates_synthetic_content
+                                                    ? 'bg-purple-50 border-purple-300 shadow-purple-100'
+                                                    : 'bg-card border-border hover:border-purple-200'
+                                                    }`}
+                                            >
+                                                <div className="flex items-start gap-2 sm:gap-3">
+                                                    <Checkbox
+                                                        checked={formData.generates_synthetic_content}
+                                                        className={formData.generates_synthetic_content ? "data-[state=checked]:bg-purple-500 border-purple-500" : ""}
+                                                    />
+                                                    <div className="flex-1">
+                                                        <div className="font-bold text-xs sm:text-sm text-foreground">
+                                                            {locale === 'fr' ? "Génère du contenu synthétique réaliste" : "Generates realistic synthetic content"}
+                                                        </div>
+                                                        <div className="text-[10px] sm:text-xs text-muted-foreground leading-tight mt-0.5 sm:mt-1">
+                                                            {locale === 'fr'
+                                                                ? "Images, vidéos, audio, avatars qui pourraient être confondus avec du contenu réel."
+                                                                : "Images, videos, audio, avatars that could be mistaken for real content."}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Conditional content type selection */}
+                                            {formData.generates_synthetic_content && (
+                                                <div className="ml-4 border-l-2 border-purple-200 pl-4">
+                                                    <p className="text-xs font-semibold text-muted-foreground mb-2">
+                                                        {locale === 'fr' ? 'Types de contenu générés :' : 'Types of generated content:'}
+                                                    </p>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {[
+                                                            { value: "image", labelFr: "🖼️ Images", labelEn: "🖼️ Images" },
+                                                            { value: "video", labelFr: "🎬 Vidéos", labelEn: "🎬 Videos" },
+                                                            { value: "audio", labelFr: "🔊 Audio", labelEn: "🔊 Audio" },
+                                                            { value: "avatar", labelFr: "👤 Avatars", labelEn: "👤 Avatars" },
+                                                            { value: "text", labelFr: "📝 Texte", labelEn: "📝 Text" }
+                                                        ].map(type => {
+                                                            const isSelected = formData.content_types?.includes(type.value as any)
+                                                            return (
+                                                                <button
+                                                                    key={type.value}
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        const current = formData.content_types || []
+                                                                        const next = isSelected
+                                                                            ? current.filter(t => t !== type.value)
+                                                                            : [...current, type.value as any]
+                                                                        setFormData(prev => ({ ...prev, content_types: next }))
+                                                                    }}
+                                                                    className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition ${isSelected
+                                                                        ? 'bg-purple-500 text-white border-purple-500'
+                                                                        : 'bg-card border-border text-foreground hover:border-purple-300'
+                                                                        }`}
+                                                                >
+                                                                    {locale === 'fr' ? type.labelFr : type.labelEn}
+                                                                </button>
+                                                            )
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </CardContent>

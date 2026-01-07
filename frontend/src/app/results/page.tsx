@@ -29,7 +29,8 @@ import {
     Share2,
     Bot,
     Save,
-    History
+    History,
+    Clock
 } from "lucide-react"
 import { exportReport } from "@/lib/api"
 import { useTranslation } from "@/lib/LanguageContext"
@@ -375,6 +376,64 @@ export default function ResultsPage() {
                         </AlertDescription>
                     </Alert>
                 </motion.div>
+
+                {/* Compliance Deadline Alert for High Risk */}
+                {result.risk_level.toLowerCase().includes('high') && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.15 }}
+                        className="mb-6"
+                    >
+                        <Alert className="border-red-300 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/10">
+                            <Clock className="h-4 w-4 text-red-600" />
+                            <AlertTitle className="text-red-900 dark:text-red-100 font-bold">
+                                {locale === 'fr'
+                                    ? '⏰ Échéance de conformité'
+                                    : '⏰ Compliance Deadline'}
+                            </AlertTitle>
+                            <AlertDescription className="text-red-800 dark:text-red-200 space-y-1">
+                                <p>
+                                    {locale === 'fr'
+                                        ? 'Les systèmes IA à haut risque (Annexe III) doivent être pleinement conformes d\'ici le 2 août 2026.'
+                                        : 'High-risk AI systems (Annex III) must be fully compliant by August 2, 2026.'}
+                                </p>
+                                <p className="text-sm opacity-80">
+                                    {locale === 'fr'
+                                        ? 'Les systèmes déjà sur le marché ont jusqu\'au 2 août 2027 pour se mettre en conformité.'
+                                        : 'Systems already on the market have until August 2, 2027 to achieve compliance.'}
+                                </p>
+                            </AlertDescription>
+                        </Alert>
+                    </motion.div>
+                )}
+
+                {/* Article 50 Deepfake Alert */}
+                {inputData?.generates_synthetic_content && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="mb-6"
+                    >
+                        <Alert className="border-purple-300 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/10">
+                            <AlertTriangle className="h-4 w-4 text-purple-600" />
+                            <AlertTitle className="text-purple-900 dark:text-purple-100 font-bold">
+                                {locale === 'fr'
+                                    ? '🎭 Obligations Article 50 - Contenu Synthétique'
+                                    : '🎭 Article 50 Obligations - Synthetic Content'}
+                            </AlertTitle>
+                            <AlertDescription className="text-purple-800 dark:text-purple-200">
+                                <ul className="list-disc list-inside space-y-1 mt-2">
+                                    <li>{locale === 'fr' ? 'Watermarking technique obligatoire sur tout contenu généré' : 'Technical watermarking required on all generated content'}</li>
+                                    <li>{locale === 'fr' ? 'Label "IA-generated" visible pour les utilisateurs' : 'Visible "AI-generated" label for users'}</li>
+                                    <li>{locale === 'fr' ? 'Registre de traçabilité (prompt, modèle, timestamp, user ID)' : 'Traceability registry (prompt, model, timestamp, user ID)'}</li>
+                                    <li>{locale === 'fr' ? 'Procédures de retrait en cas d\'usage abusif' : 'Takedown procedures for misuse'}</li>
+                                </ul>
+                            </AlertDescription>
+                        </Alert>
+                    </motion.div>
+                )}
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
                     {/* Left: System Profile */}

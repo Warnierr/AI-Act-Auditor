@@ -24,6 +24,15 @@ class AISystemInput(BaseModel):
     is_critical_infrastructure: bool = False
     is_safety_component: bool = False
     
+    # Health domain fields (Annex III, 5)
+    health_domain: bool = False
+    influences_diagnosis: bool = False
+    is_administrative_only: bool = False
+    
+    # Synthetic content / Deepfake fields (Article 50)
+    generates_synthetic_content: bool = False
+    content_types: Optional[List[str]] = Field(None, description="Types of synthetic content: image, video, audio, avatar, text")
+    
     # Enhanced audit metadata
     user_type: Optional[str] = Field(None, description="Primary user profile (public, professionals, etc.)")
     data_types: Optional[List[str]] = Field(None, description="Types of data processed by the system")
