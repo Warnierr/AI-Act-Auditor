@@ -169,7 +169,7 @@ export default function AssessmentWizard() {
     const getOptionLabel = (option: { labelFr: string; labelEn: string }) =>
         locale === 'fr' ? option.labelFr : option.labelEn
 
-    const toggleDataType = (type: string) => {
+    const toggleDataType = (type: "personal" | "sensitive" | "biometric" | "financial" | "health" | "none") => {
         setFormData(prev => {
             const existing = prev.data_types || []
             const next = existing.includes(type)
