@@ -1,8 +1,10 @@
 {
-  "version": 2,
-  "buildCommand": "cd frontend && npm install && npm run build",
-  "outputDirectory": "frontend/.next",
-  "framework": "nextjs",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://api-aiact.kenshu.dev/api/:path*"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
@@ -28,12 +30,6 @@
           "value": "strict-origin-when-cross-origin"
         }
       ]
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "https://api-aiact.kenshu.dev/api/:path*"
     }
   ]
 }
