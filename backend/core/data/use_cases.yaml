@@ -162,23 +162,23 @@ high_risk_sectors:
       - id: "emp_cv_screening"
         name_en: "CV screening/ranking"
         name_fr: "Tri/ranking CV"
-        keywords: ["cv screening", "resume ranking", "candidate filtering", "ATS"]
+        keywords: ["cv screening", "resume ranking", "candidate filtering", "ATS", "tri cv", "tri de cv", "recrutement", "sélection candidats", "filtrage cv", "ranking candidats", "présélection", "screening candidats", "analyse cv"]
       - id: "emp_interview"
         name_en: "Interview analysis"
         name_fr: "Analyse d'entretien"
-        keywords: ["video interview analysis", "interview AI", "candidate assessment"]
+        keywords: ["video interview analysis", "interview AI", "candidate assessment", "analyse entretien", "évaluation candidat", "entretien vidéo"]
       - id: "emp_performance"
         name_en: "Performance prediction"
         name_fr: "Prédiction performance"
-        keywords: ["performance prediction", "employee evaluation", "productivity AI"]
+        keywords: ["performance prediction", "employee evaluation", "productivity AI", "prédiction performance", "évaluation employé", "productivité"]
       - id: "emp_monitoring"
         name_en: "Employee monitoring"
         name_fr: "Surveillance employés"
-        keywords: ["employee monitoring", "workplace surveillance", "productivity tracking"]
+        keywords: ["employee monitoring", "workplace surveillance", "productivity tracking", "surveillance employés", "monitoring collaborateurs"]
       - id: "emp_termination"
         name_en: "Promotion/termination assistance"
         name_fr: "Assistance promotion/licenciement"
-        keywords: ["promotion decision", "termination AI", "layoff prediction"]
+        keywords: ["promotion decision", "termination AI", "layoff prediction", "décision promotion", "licenciement", "prédiction départs"]
 
   # Category 5: Essential Services
   public_services:
