@@ -21,16 +21,15 @@ import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import {
-    Shield,
-    Brain,
-    Laptop,
-    Activity,
     ArrowLeft,
+    Check,
+    CheckCircle2,
+    Laptop,
+    Shield,
     ArrowRight,
     Loader2,
     Languages,
     Sparkles,
-    Check,
     AlertCircle,
     AlertTriangle,
     Info,
@@ -94,12 +93,30 @@ export default function AssessmentWizard() {
         sectors: []
     })
 
-    const handleDecisionComplete = (risk: string) => {
+    const handleDecisionComplete = (risk: string, payload?: Partial<AISystemInput>) => {
         setShowDecisionTree(false)
+
+        // Merge payloads if provided
+        if (payload) {
+            setFormData(prev => ({ ...prev, ...payload }))
+        }
+
+        // Map risk to some form defaults to help the user
+        const riskPresets: Record<string, Partial<AISystemInput>> = {
+            "PROHIBITED": { affects_rights: true },
+            "HIGH_RISK": { affects_rights: true },
+            "LIMITED": { is_gen_ai: true },
+            "MINIMAL": {}
+        }
+
+        if (riskPresets[risk]) {
+            setFormData(prev => ({ ...prev, ...riskPresets[risk] }))
+        }
+
         toast.info(
             locale === 'fr'
-                ? `Analyse terminée : Votre système semble être ${risk}.`
-                : `Analysis complete: Your system appears to be ${risk}.`
+                ? `Analyse terminée : Votre système est suggéré comme ${risk}. Nous avons pré-rempli certains champs.`
+                : `Analysis complete: Your system is suggested as ${risk}. We've pre-filled some fields.`
         )
     }
 
@@ -434,11 +451,16 @@ export default function AssessmentWizard() {
                                                         key={template.id}
                                                         type="button"
                                                         onClick={() => applyTemplate(template)}
-                                                        className={`p-3 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 text-center group ${selectedTemplate === template.id
-                                                            ? 'border-primary bg-primary/5 shadow-md shadow-primary/10'
+                                                        className={`p-3 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 text-center group relative ${selectedTemplate === template.id
+                                                            ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20 ring-2 ring-primary/20 scale-[1.02]'
                                                             : 'border-border bg-card hover:border-primary/30 hover:bg-secondary/50'
                                                             }`}
                                                     >
+                                                        {selectedTemplate === template.id && (
+                                                            <div className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full p-1 shadow-md">
+                                                                <CheckCircle2 className="h-4 w-4" />
+                                                            </div>
+                                                        )}
                                                         <span className="text-2xl group-hover:scale-110 transition-transform">{template.icon}</span>
                                                         <div className="space-y-0.5">
                                                             <span className="text-[10px] sm:text-xs font-bold block leading-tight text-foreground line-clamp-1">
@@ -595,8 +617,8 @@ export default function AssessmentWizard() {
                                                         key={cat.id}
                                                         onClick={() => handleCheckboxChange(cat.id, !formData[cat.id as keyof AISystemInput])}
                                                         className={`cursor-pointer p-3 sm:p-4 rounded-xl border-2 transition-all hover:shadow-md ${formData[cat.id as keyof AISystemInput]
-                                                            ? 'bg-orange-50 border-orange-300 shadow-orange-100'
-                                                            : 'bg-card border-border hover:border-orange-200'
+                                                            ? 'bg-orange-50 dark:bg-orange-950/30 border-orange-300 dark:border-orange-800 shadow-orange-100 dark:shadow-none'
+                                                            : 'bg-card border-border hover:border-orange-200 dark:hover:border-orange-900'
                                                             }`}
                                                     >
                                                         <div className="flex items-start gap-2 sm:gap-3">
@@ -625,8 +647,8 @@ export default function AssessmentWizard() {
                                             <div
                                                 onClick={() => handleCheckboxChange('is_gen_ai', !formData.is_gen_ai)}
                                                 className={`cursor-pointer p-3 sm:p-4 rounded-xl border-2 transition-all hover:shadow-md ${formData.is_gen_ai
-                                                    ? 'bg-blue-50 border-blue-300 shadow-blue-100'
-                                                    : 'bg-card border-border hover:border-blue-200'
+                                                    ? 'bg-blue-50 dark:bg-blue-950/30 border-blue-300 dark:border-blue-800 shadow-blue-100 dark:shadow-none'
+                                                    : 'bg-card border-border hover:border-blue-200 dark:hover:border-blue-900'
                                                     }`}
                                             >
                                                 <div className="flex items-start gap-2 sm:gap-3">
@@ -659,8 +681,8 @@ export default function AssessmentWizard() {
                                             <div
                                                 onClick={() => handleCheckboxChange('health_domain', !formData.health_domain)}
                                                 className={`cursor-pointer p-3 sm:p-4 rounded-xl border-2 transition-all hover:shadow-md ${formData.health_domain
-                                                    ? 'bg-rose-50 border-rose-300 shadow-rose-100'
-                                                    : 'bg-card border-border hover:border-rose-200'
+                                                    ? 'bg-rose-50 dark:bg-rose-950/30 border-rose-300 dark:border-rose-800 shadow-rose-100 dark:shadow-none'
+                                                    : 'bg-card border-border hover:border-rose-200 dark:hover:border-rose-900'
                                                     }`}
                                             >
                                                 <div className="flex items-start gap-2 sm:gap-3">
@@ -687,8 +709,8 @@ export default function AssessmentWizard() {
                                                     <div
                                                         onClick={() => handleCheckboxChange('influences_diagnosis', !formData.influences_diagnosis)}
                                                         className={`cursor-pointer p-3 rounded-lg border transition-all ${formData.influences_diagnosis
-                                                            ? 'bg-red-50 border-red-400'
-                                                            : 'bg-card border-border'
+                                                            ? 'bg-red-50 dark:bg-red-950/30 border-red-400 dark:border-red-900'
+                                                            : 'bg-card border-border dark:border-border/50'
                                                             }`}
                                                     >
                                                         <div className="flex items-start gap-2">
@@ -706,8 +728,8 @@ export default function AssessmentWizard() {
                                                     <div
                                                         onClick={() => handleCheckboxChange('is_administrative_only', !formData.is_administrative_only)}
                                                         className={`cursor-pointer p-3 rounded-lg border transition-all ${formData.is_administrative_only
-                                                            ? 'bg-green-50 border-green-400'
-                                                            : 'bg-card border-border'
+                                                            ? 'bg-green-50 dark:bg-green-950/30 border-green-400 dark:border-green-900'
+                                                            : 'bg-card border-border dark:border-border/50'
                                                             }`}
                                                     >
                                                         <div className="flex items-start gap-2">
@@ -737,8 +759,8 @@ export default function AssessmentWizard() {
                                             <div
                                                 onClick={() => handleCheckboxChange('generates_synthetic_content', !formData.generates_synthetic_content)}
                                                 className={`cursor-pointer p-3 sm:p-4 rounded-xl border-2 transition-all hover:shadow-md ${formData.generates_synthetic_content
-                                                    ? 'bg-purple-50 border-purple-300 shadow-purple-100'
-                                                    : 'bg-card border-border hover:border-purple-200'
+                                                    ? 'bg-purple-50 dark:bg-purple-950/30 border-purple-300 dark:border-purple-800 shadow-purple-100 dark:shadow-none'
+                                                    : 'bg-card border-border hover:border-purple-200 dark:hover:border-purple-900'
                                                     }`}
                                             >
                                                 <div className="flex items-start gap-2 sm:gap-3">

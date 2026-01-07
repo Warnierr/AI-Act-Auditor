@@ -10,7 +10,9 @@ import {
     ArrowLeft,
     ShieldAlert,
     Info,
-    Scale
+    Scale,
+    Check,
+    Laptop,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -22,6 +24,7 @@ interface DecisionNode {
     yesPath: string; // ID of next node or "PROHIBITED" | "HIGH_RISK"
     noPath: string;  // ID of next node or "LIMITED" | "MINIMAL"
     category?: string;
+    payload?: Record<string, any>;
 }
 
 const NODES: Record<string, DecisionNode> = {
@@ -31,7 +34,8 @@ const NODES: Record<string, DecisionNode> = {
         questionEn: "Does your AI use subliminal techniques or exploit vulnerabilities of specific groups?",
         yesPath: "PROHIBITED",
         noPath: "scoring",
-        category: "Article 5"
+        category: "Article 5",
+        payload: { affects_rights: true }
     },
     scoring: {
         id: "scoring",
@@ -39,7 +43,8 @@ const NODES: Record<string, DecisionNode> = {
         questionEn: "Is it a social scoring system used by a public authority?",
         yesPath: "PROHIBITED",
         noPath: "biometric_live",
-        category: "Article 5"
+        category: "Article 5",
+        payload: { affects_rights: true }
     },
     biometric_live: {
         id: "biometric_live",
@@ -47,7 +52,8 @@ const NODES: Record<string, DecisionNode> = {
         questionEn: "Do you use real-time remote biometric identification in public spaces?",
         yesPath: "PROHIBITED",
         noPath: "health_diagnosis",
-        category: "Article 5"
+        category: "Article 5",
+        payload: { affects_rights: true, is_biometric: true }
     },
     health_diagnosis: {
         id: "health_diagnosis",
@@ -55,7 +61,8 @@ const NODES: Record<string, DecisionNode> = {
         questionEn: "Is it a health system influencing diagnosis or treatment decisions?",
         yesPath: "HIGH_RISK",
         noPath: "critical_infra",
-        category: "Health (Annex III)"
+        category: "Health (Annex III)",
+        payload: { health_domain: true, influences_diagnosis: true, domain: "Healthcare" }
     },
     critical_infra: {
         id: "critical_infra",
@@ -63,7 +70,8 @@ const NODES: Record<string, DecisionNode> = {
         questionEn: "Does the system manage critical infrastructure (energy, transport, water, telecom)?",
         yesPath: "HIGH_RISK",
         noPath: "hr_education",
-        category: "Infrastructure (Annex III)"
+        category: "Infrastructure (Annex III)",
+        payload: { is_critical_infrastructure: true, domain: "Critical Infrastructure" }
     },
     hr_education: {
         id: "hr_education",
@@ -71,20 +79,22 @@ const NODES: Record<string, DecisionNode> = {
         questionEn: "Is it a system related to recruitment, promotion, or school admission?",
         yesPath: "HIGH_RISK",
         noPath: "gen_ai",
-        category: "HR/Education (Annex III)"
+        category: "HR/Education (Annex III)",
+        payload: { is_employment: true, is_education: true, domain: "HR / Education" }
     },
     gen_ai: {
         id: "gen_ai",
         questionFr: "S'agit-il d'un système d'IA générative ou d'un chatbot ?",
         questionEn: "Is it a generative AI system or a chatbot?",
         yesPath: "LIMITED",
-        noPath: "MINIMAL"
+        noPath: "MINIMAL",
+        payload: { is_gen_ai: true }
     }
 }
 
 interface DecisionTreeProps {
     locale: string;
-    onComplete: (risk: string) => void;
+    onComplete: (risk: string, payload?: any) => void;
     onCancel?: () => void;
 }
 
@@ -98,7 +108,9 @@ export function DecisionTree({ locale, onComplete, onCancel }: DecisionTreeProps
         const nextId = choice === 'yes' ? currentNode.yesPath : currentNode.noPath
 
         if (["PROHIBITED", "HIGH_RISK", "LIMITED", "MINIMAL"].includes(nextId)) {
-            onComplete(nextId)
+            // Find the last node that had a payload to help pre-fill
+            const lastPayload = choice === 'yes' ? currentNode.payload : {}
+            onComplete(nextId, lastPayload)
         } else {
             setHistory([...history, currentNodeId])
             setCurrentNodeId(nextId)
