@@ -153,7 +153,7 @@ export default function AssessmentWizard() {
         { value: "financial", labelFr: "Financières", labelEn: "Financial" },
         { value: "health", labelFr: "Santé", labelEn: "Health" },
         { value: "none", labelFr: "Aucune", labelEn: "None" }
-    ]
+    ] as const
 
     const automationOptions = [
         { value: "full", labelFr: "Décision complète", labelEn: "Full decision" },
@@ -533,7 +533,7 @@ export default function AssessmentWizard() {
                                                 <Select
                                                     value={formData.user_type}
                                                     onValueChange={(value) =>
-                                                        setFormData(prev => ({ ...prev, user_type: value }))
+                                                        setFormData(prev => ({ ...prev, user_type: value as AISystemInput['user_type'] }))
                                                     }
                                                 >
                                                     <SelectTrigger>
@@ -555,7 +555,7 @@ export default function AssessmentWizard() {
                                                 <Select
                                                     value={formData.automation_level}
                                                     onValueChange={(value) =>
-                                                        setFormData(prev => ({ ...prev, automation_level: value }))
+                                                        setFormData(prev => ({ ...prev, automation_level: value as AISystemInput['automation_level'] }))
                                                     }
                                                 >
                                                     <SelectTrigger>
@@ -577,7 +577,7 @@ export default function AssessmentWizard() {
                                                 <Select
                                                     value={formData.output_type}
                                                     onValueChange={(value) =>
-                                                        setFormData(prev => ({ ...prev, output_type: value }))
+                                                        setFormData(prev => ({ ...prev, output_type: value as AISystemInput['output_type'] }))
                                                     }
                                                 >
                                                     <SelectTrigger>
