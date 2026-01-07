@@ -34,13 +34,16 @@ import {
     AlertCircle,
     AlertTriangle,
     Info,
-    ShieldAlert
+    ShieldAlert,
+    Scale
 } from "lucide-react"
+import { toast } from "sonner"
 import { assessSystem } from "@/lib/api"
 import { AISystemInput } from "@/types"
 import { useTranslation } from "@/lib/LanguageContext"
 import { validateStep1, validateStep2, validateStep3, validateAll } from "@/lib/validation"
 import { FormError } from "@/components/ui/form-error"
+import { DecisionTree } from "@/components/DecisionTree"
 
 const steps = [
     { id: 1, icon: Laptop },
@@ -54,6 +57,7 @@ export default function AssessmentWizard() {
     const [step, setStep] = useState(1)
     const [loading, setLoading] = useState(false)
     const [suspiciousTerms, setSuspiciousTerms] = useState<string[]>([])
+    const [showDecisionTree, setShowDecisionTree] = useState(false)
     const [formData, setFormData] = useState<AISystemInput>({
         name: "",
         description: "",
@@ -86,8 +90,18 @@ export default function AssessmentWizard() {
         output_type: "recommendations",
         additional_context: "",
         deployment_phase: "Development",
-        language: locale
+        language: locale,
+        sectors: []
     })
+
+    const handleDecisionComplete = (risk: string) => {
+        setShowDecisionTree(false)
+        toast.info(
+            locale === 'fr'
+                ? `Analyse terminée : Votre système semble être ${risk}.`
+                : `Analysis complete: Your system appears to be ${risk}.`
+        )
+    }
 
     useEffect(() => {
         setFormData(prev => ({ ...prev, language: locale }))
@@ -167,7 +181,7 @@ export default function AssessmentWizard() {
         { value: "full", labelFr: "Décision complète", labelEn: "Full decision" },
         { value: "partial", labelFr: "Décision partielle", labelEn: "Partial decision" },
         { value: "advisory", labelFr: "Recommandation / Support", labelEn: "Advisory support" }
-    ]
+    ] as const
 
     const outputOptions = [
         { value: "recommendations", labelFr: "Recommandations", labelEn: "Recommendations" },
@@ -175,7 +189,132 @@ export default function AssessmentWizard() {
         { value: "content", labelFr: "Contenu généré", labelEn: "Generated content" },
         { value: "predictions", labelFr: "Prédictions", labelEn: "Predictions" },
         { value: "classifications", labelFr: "Classifications", labelEn: "Classifications" }
+    ] as const
+
+    // Sector template presets for quick audits
+    const SECTOR_TEMPLATES = [
+        {
+            id: "medical_chatbot",
+            icon: "🏥",
+            labelFr: "Chatbot Médical",
+            labelEn: "Medical Chatbot",
+            risk: "HIGH",
+            preset: {
+                health_domain: true,
+                influences_diagnosis: true,
+                domain: "Healthcare",
+                data_types: ["health", "personal", "sensitive"],
+                sectors: ["health"]
+            }
+        },
+        {
+            id: "cv_screening",
+            icon: "💼",
+            labelFr: "Tri de CV / RH",
+            labelEn: "CV Screening / HR",
+            risk: "HIGH",
+            preset: {
+                employment: true,
+                domain: "Employment / HR",
+                output_type: "classifications",
+                affects_rights: true,
+                sectors: ["employment"]
+            }
+        },
+        {
+            id: "credit_scoring",
+            icon: "💳",
+            labelFr: "Scoring Crédit",
+            labelEn: "Credit Scoring",
+            risk: "HIGH",
+            preset: {
+                services: true,
+                domain: "Financial Services",
+                output_type: "predictions",
+                affects_rights: true,
+                data_types: ["financial", "personal"],
+                sectors: ["financial"]
+            }
+        },
+        {
+            id: "deepfake",
+            icon: "🎭",
+            labelFr: "Générateur Deepfake",
+            labelEn: "Deepfake Generator",
+            risk: "LIMITED",
+            preset: {
+                generates_synthetic_content: true,
+                content_types: ["image", "video", "audio"],
+                is_gen_ai: true,
+                domain: "Content Generation"
+            }
+        },
+        {
+            id: "student_admission",
+            icon: "🎓",
+            labelFr: "Admission Étudiants",
+            labelEn: "Student Admission",
+            risk: "HIGH",
+            preset: {
+                education: true,
+                domain: "Education",
+                output_type: "decisions",
+                affects_rights: true,
+                user_type: "general_public",
+                sectors: ["education"]
+            }
+        },
+        {
+            id: "customer_chatbot",
+            icon: "💬",
+            labelFr: "Chatbot Client",
+            labelEn: "Customer Chatbot",
+            risk: "LIMITED",
+            preset: {
+                is_gen_ai: true,
+                domain: "Customer Service",
+                user_type: "general_public" as const
+            }
+        },
+        {
+            id: "fraud_detection",
+            icon: "🔍",
+            labelFr: "Détection Fraude",
+            labelEn: "Fraud Detection",
+            risk: "HIGH",
+            preset: {
+                services: true,
+                domain: "Financial Services",
+                output_type: "classifications",
+                data_types: ["financial", "personal"],
+                sectors: ["financial"]
+            }
+        },
+        {
+            id: "custom",
+            icon: "✏️",
+            labelFr: "Audit Personnalisé",
+            labelEn: "Custom Audit",
+            risk: null,
+            preset: {}
+        }
     ]
+
+    const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null)
+
+    const applyTemplate = (template: typeof SECTOR_TEMPLATES[0]) => {
+        setSelectedTemplate(template.id)
+        if (template.id !== "custom") {
+            const preset = { ...template.preset }
+            setFormData(prev => ({
+                ...prev,
+                ...preset,
+                data_types: preset.data_types ? [...preset.data_types] as any : prev.data_types,
+                content_types: preset.content_types ? [...preset.content_types] as any : prev.content_types,
+                sectors: preset.sectors ? [...preset.sectors] as any : []
+            }) as AISystemInput)
+        }
+    }
 
     const getOptionLabel = (option: { labelFr: string; labelEn: string }) =>
         locale === 'fr' ? option.labelFr : option.labelEn
@@ -252,96 +391,148 @@ export default function AssessmentWizard() {
                         transition={{ duration: 0.3, ease: "easeInOut" }}
                     >
                         {step === 1 && (
-                            <Card className="glass-card border-0 shadow-2xl overflow-hidden">
-                                <CardHeader className="bg-gradient-to-r from-secondary/50 to-card border-b border-border pb-4 sm:pb-6">
-                                    <div className="flex items-center gap-2 sm:gap-3 mb-2">
-                                        <div className="p-2 rounded-xl bg-primary/10">
-                                            <Laptop className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                            showDecisionTree ? (
+                                <DecisionTree
+                                    locale={locale}
+                                    onComplete={handleDecisionComplete}
+                                    onCancel={() => setShowDecisionTree(false)}
+                                />
+                            ) : (
+                                <Card className="glass-card border-0 shadow-2xl overflow-hidden">
+                                    <CardHeader className="bg-gradient-to-r from-secondary/50 to-card border-b border-border pb-4 sm:pb-6">
+                                        <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                                            <div className="p-2 rounded-xl bg-primary/10">
+                                                <Laptop className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                                            </div>
+                                            <Badge variant="secondary" className="text-[10px] sm:text-xs font-bold uppercase tracking-wider">
+                                                {t.wizard.step1Title}
+                                            </Badge>
                                         </div>
-                                        <Badge variant="secondary" className="text-[10px] sm:text-xs font-bold uppercase tracking-wider">
-                                            {t.wizard.step1Title}
-                                        </Badge>
-                                    </div>
-                                    <CardTitle className="text-xl sm:text-2xl font-bold text-foreground">{t.wizard.identity}</CardTitle>
-                                    <CardDescription className="text-sm sm:text-base">{t.wizard.identityDesc}</CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-4 sm:space-y-6 pt-6 sm:pt-8 pb-4">
-                                    <div className="grid gap-3">
-                                        <Label htmlFor="name" className="text-xs sm:text-sm font-semibold flex items-center gap-2 text-foreground">
-                                            {t.wizard.productName} <span className="text-destructive">*</span>
-                                            {formData.name.trim().length > 0 && <Check className="h-4 w-4 text-emerald-500" />}
-                                        </Label>
-                                        <Input
-                                            id="name"
-                                            name="name"
-                                            placeholder={t.wizard.productPlaceholder}
-                                            value={formData.name}
-                                            onChange={handleChange}
-                                            className="h-11 sm:h-12 text-sm sm:text-base border-border focus:border-primary focus:ring-primary/20 text-foreground bg-background placeholder:text-muted-foreground"
-                                        />
-                                    </div>
-                                    <div className="grid gap-3">
-                                        <Label htmlFor="description" className="text-xs sm:text-sm font-semibold flex items-center gap-2 text-foreground">
-                                            {t.wizard.overview} <span className="text-destructive">*</span>
-                                            {formData.description.trim().length > 10 && <Check className="h-4 w-4 text-emerald-500" />}
-                                        </Label>
-                                        <Textarea
-                                            id="description"
-                                            name="description"
-                                            placeholder={t.wizard.overviewPlaceholder}
-                                            className="min-h-[100px] sm:min-h-[120px] resize-none text-sm sm:text-base border-border focus:border-primary text-foreground bg-background placeholder:text-muted-foreground"
-                                            value={formData.description}
-                                            onChange={handleChange}
-                                        />
-                                        {formData.description.length > 0 && formData.description.trim().length <= 10 && (
-                                            <p className="text-xs text-destructive font-medium">
-                                                {locale === 'fr' ? 'La description doit contenir au moins 10 caractères.' : 'Description must be at least 10 characters.'}
-                                            </p>
-                                        )}
+                                        <CardTitle className="text-xl sm:text-2xl font-bold text-foreground">{t.wizard.identity}</CardTitle>
+                                        <CardDescription className="text-sm sm:text-base">{t.wizard.identityDesc}</CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4 sm:space-y-6 pt-6 sm:pt-8 pb-4">
+                                        {/* Template Selector */}
+                                        <div className="space-y-4 mb-6">
+                                            <div className="flex items-center justify-between gap-2">
+                                                <Label className="text-xs sm:text-sm font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                                                    <Sparkles className="h-4 w-4 text-primary" />
+                                                    {locale === 'fr' ? 'SÉLECTIONNEZ UN MODÈLE (OPTIONNEL)' : 'SELECT A TEMPLATE (OPTIONAL)'}
+                                                </Label>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowDecisionTree(true)}
+                                                    className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1 bg-primary/5 px-2 py-1 rounded-lg"
+                                                >
+                                                    <Scale className="h-3 w-3" />
+                                                    {locale === 'fr' ? 'Aidez-moi à classer' : 'Help me classify'}
+                                                </button>
+                                            </div>
+                                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                                {SECTOR_TEMPLATES.map((template) => (
+                                                    <button
+                                                        key={template.id}
+                                                        type="button"
+                                                        onClick={() => applyTemplate(template)}
+                                                        className={`p-3 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 text-center group ${selectedTemplate === template.id
+                                                            ? 'border-primary bg-primary/5 shadow-md shadow-primary/10'
+                                                            : 'border-border bg-card hover:border-primary/30 hover:bg-secondary/50'
+                                                            }`}
+                                                    >
+                                                        <span className="text-2xl group-hover:scale-110 transition-transform">{template.icon}</span>
+                                                        <div className="space-y-0.5">
+                                                            <span className="text-[10px] sm:text-xs font-bold block leading-tight text-foreground line-clamp-1">
+                                                                {locale === 'fr' ? template.labelFr : template.labelEn}
+                                                            </span>
+                                                            {template.risk && (
+                                                                <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded-full ${template.risk === 'HIGH' ? 'bg-red-500/10 text-red-600' : 'bg-blue-500/10 text-blue-600'
+                                                                    }`}>
+                                                                    {template.risk}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
 
-                                        {/* Suspicious terms alert (Article 5) */}
-                                        {suspiciousTerms.length > 0 && (
-                                            <Alert variant="destructive" className="mt-3 border-orange-500 bg-orange-50 dark:bg-orange-950/20">
-                                                <AlertTriangle className="h-4 w-4" />
-                                                <AlertTitle className="text-orange-900 dark:text-orange-200 font-bold">
-                                                    {locale === 'fr' ? '⚠️ Attention : Termes Suspects Détectés' : '⚠️ Warning: Suspicious Terms Detected'}
-                                                </AlertTitle>
-                                                <AlertDescription className="text-orange-800 dark:text-orange-300 text-xs sm:text-sm">
-                                                    {locale === 'fr'
-                                                        ? `Votre description contient des termes qui pourraient indiquer un système interdit selon l'Article 5 de l'AI Act (${suspiciousTerms.slice(0, 2).join(', ')}${suspiciousTerms.length > 2 ? '...' : ''}). Veuillez vérifier la conformité avec un expert juridique avant de continuer.`
-                                                        : `Your description contains terms that may indicate a prohibited system under Article 5 of the AI Act (${suspiciousTerms.slice(0, 2).join(', ')}${suspiciousTerms.length > 2 ? '...' : ''}). Please verify compliance with a legal expert before proceeding.`
-                                                    }
-                                                </AlertDescription>
-                                            </Alert>
-                                        )}
-                                    </div>
-                                    <div className="grid gap-3">
-                                        <Label htmlFor="intended_purpose" className="text-xs sm:text-sm font-semibold text-foreground">{t.wizard.purpose}</Label>
-                                        <Textarea
-                                            id="intended_purpose"
-                                            name="intended_purpose"
-                                            placeholder={t.wizard.purposePlaceholder}
-                                            className="min-h-[80px] sm:min-h-[100px] resize-none text-sm sm:text-base border-border focus:border-primary text-foreground bg-background placeholder:text-muted-foreground"
-                                            value={formData.intended_purpose}
-                                            onChange={handleChange}
-                                        />
-                                    </div>
-                                </CardContent>
-                                <CardFooter className="flex flex-col sm:flex-row justify-between gap-3 p-4 sm:p-6 bg-secondary/50 border-t border-border">
-                                    <Button variant="ghost" onClick={() => router.push('/')} className="text-muted-foreground w-full sm:w-auto">
-                                        <ArrowLeft className="mr-2 h-4 w-4" />
-                                        {t.common.home}
-                                    </Button>
-                                    <Button
-                                        onClick={nextStep}
-                                        disabled={!isStep1Valid}
-                                        className="bg-foreground hover:bg-foreground/90 text-background shadow-lg btn-premium h-11 px-6 w-full sm:w-auto"
-                                    >
-                                        {t.common.next}
-                                        <ArrowRight className="ml-2 h-4 w-4" />
-                                    </Button>
-                                </CardFooter>
-                            </Card>
+                                        <div className="grid gap-3">
+                                            <Label htmlFor="name" className="text-xs sm:text-sm font-semibold flex items-center gap-2 text-foreground">
+                                                {t.wizard.productName} <span className="text-destructive">*</span>
+                                                {formData.name.trim().length > 0 && <Check className="h-4 w-4 text-emerald-500" />}
+                                            </Label>
+                                            <Input
+                                                id="name"
+                                                name="name"
+                                                placeholder={t.wizard.productPlaceholder}
+                                                value={formData.name}
+                                                onChange={handleChange}
+                                                className="h-11 sm:h-12 text-sm sm:text-base border-border focus:border-primary focus:ring-primary/20 text-foreground bg-background placeholder:text-muted-foreground"
+                                            />
+                                        </div>
+                                        <div className="grid gap-3">
+                                            <Label htmlFor="description" className="text-xs sm:text-sm font-semibold flex items-center gap-2 text-foreground">
+                                                {t.wizard.overview} <span className="text-destructive">*</span>
+                                                {formData.description.trim().length > 10 && <Check className="h-4 w-4 text-emerald-500" />}
+                                            </Label>
+                                            <Textarea
+                                                id="description"
+                                                name="description"
+                                                placeholder={t.wizard.overviewPlaceholder}
+                                                className="min-h-[100px] sm:min-h-[120px] resize-none text-sm sm:text-base border-border focus:border-primary text-foreground bg-background placeholder:text-muted-foreground"
+                                                value={formData.description}
+                                                onChange={handleChange}
+                                            />
+                                            {formData.description.length > 0 && formData.description.trim().length <= 10 && (
+                                                <p className="text-xs text-destructive font-medium">
+                                                    {locale === 'fr' ? 'La description doit contenir au moins 10 caractères.' : 'Description must be at least 10 characters.'}
+                                                </p>
+                                            )}
+
+                                            {/* Suspicious terms alert (Article 5) */}
+                                            {suspiciousTerms.length > 0 && (
+                                                <Alert variant="destructive" className="mt-3 border-orange-500 bg-orange-50 dark:bg-orange-950/20">
+                                                    <AlertTriangle className="h-4 w-4" />
+                                                    <AlertTitle className="text-orange-900 dark:text-orange-200 font-bold">
+                                                        {locale === 'fr' ? '⚠️ Attention : Termes Suspects Détectés' : '⚠️ Warning: Suspicious Terms Detected'}
+                                                    </AlertTitle>
+                                                    <AlertDescription className="text-orange-800 dark:text-orange-300 text-xs sm:text-sm">
+                                                        {locale === 'fr'
+                                                            ? `Votre description contient des termes qui pourraient indiquer un système interdit selon l'Article 5 de l'AI Act (${suspiciousTerms.slice(0, 2).join(', ')}${suspiciousTerms.length > 2 ? '...' : ''}). Veuillez vérifier la conformité avec un expert juridique avant de continuer.`
+                                                            : `Your description contains terms that may indicate a prohibited system under Article 5 of the AI Act (${suspiciousTerms.slice(0, 2).join(', ')}${suspiciousTerms.length > 2 ? '...' : ''}). Please verify compliance with a legal expert before proceeding.`
+                                                        }
+                                                    </AlertDescription>
+                                                </Alert>
+                                            )}
+                                        </div>
+                                        <div className="grid gap-3">
+                                            <Label htmlFor="intended_purpose" className="text-xs sm:text-sm font-semibold text-foreground">{t.wizard.purpose}</Label>
+                                            <Textarea
+                                                id="intended_purpose"
+                                                name="intended_purpose"
+                                                placeholder={t.wizard.purposePlaceholder}
+                                                className="min-h-[80px] sm:min-h-[100px] resize-none text-sm sm:text-base border-border focus:border-primary text-foreground bg-background placeholder:text-muted-foreground"
+                                                value={formData.intended_purpose}
+                                                onChange={handleChange}
+                                            />
+                                        </div>
+                                    </CardContent>
+                                    <CardFooter className="flex flex-col sm:flex-row justify-between gap-3 p-4 sm:p-6 bg-secondary/50 border-t border-border">
+                                        <Button variant="ghost" onClick={() => router.push('/')} className="text-muted-foreground w-full sm:w-auto">
+                                            <ArrowLeft className="mr-2 h-4 w-4" />
+                                            {t.common.home}
+                                        </Button>
+                                        <Button
+                                            onClick={nextStep}
+                                            disabled={!isStep1Valid}
+                                            className="bg-foreground hover:bg-foreground/90 text-background shadow-lg btn-premium h-11 px-6 w-full sm:w-auto"
+                                        >
+                                            {t.common.next}
+                                            <ArrowRight className="ml-2 h-4 w-4" />
+                                        </Button>
+                                    </CardFooter>
+                                </Card>
+                            )
                         )}
 
                         {step === 2 && (

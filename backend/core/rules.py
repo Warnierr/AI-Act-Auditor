@@ -71,22 +71,19 @@ TRANSLATIONS = {
 }
 
 class RuleEngine:
-    _annex_iii_rules: List[Dict] = []
-
     @classmethod
-    def load_rules(cls):
-        if not cls._annex_iii_rules:
-            yaml_path = os.path.join(os.path.dirname(__file__), "data", "annex_iii.yaml")
-            try:
-                with open(yaml_path, 'r', encoding='utf-8') as f:
-                    data = yaml.safe_load(f)
-                    cls._annex_iii_rules = data.get("high_risk_systems", [])
-            except FileNotFoundError:
-                print(f"Warning: Rules file not found at {yaml_path}")
+    def load_use_cases(cls) -> Dict:
+        yaml_path = os.path.join(os.path.dirname(__file__), "data", "use_cases.yaml")
+        try:
+            with open(yaml_path, 'r', encoding='utf-8') as f:
+                return yaml.safe_load(f)
+        except Exception as e:
+            print(f"Error loading use cases: {e}")
+            return {}
 
     @staticmethod
     def classify(system: AISystemInput) -> AnalysisResult:
-        RuleEngine.load_rules()
+        use_cases_data = RuleEngine.load_use_cases()
         lang = system.language if system.language in TRANSLATIONS else "en"
         t = TRANSLATIONS[lang]
         
@@ -96,126 +93,129 @@ class RuleEngine:
         
         text_corpus = (system.description + " " + system.intended_purpose + " " + (system.domain or "")).lower()
 
-        # 1. Check Prohibited Practices (Article 5)
-        PROHIBITED_PATTERNS = {
-            "5.1.a_subliminal": {
-                "keywords_en": ["subliminal", "subconscious manipulation", "hidden manipulation", "imperceptible techniques", "subliminal technique"],
-                "keywords_fr": ["subliminal", "manipulation subliminale", "manipulation inconsciente", "techniques imperceptibles", "technique subliminale"],
-                "confidence": 1.0,
-                "article": "Article 5.1.a"
-            },
-            "5.1.b_vulnerability": {
-                "keywords_en": ["exploit vulnerabilities", "vulnerable groups", "children exploitation", "disability exploitation", "economic vulnerability", "exploit vulnerability", "exploiting vulnerable"],
-                "keywords_fr": ["exploiter vulnérabilités", "groupes vulnérables", "exploitation enfants", "exploitation handicap", "vulnérabilité économique", "exploiter vulnérabilité", "exploiter personnes vulnérables"],
-                "confidence": 1.0,
-                "article": "Article 5.1.b"
-            },
-            "5.1.c_social_scoring": {
-                "keywords_en": ["social scoring", "social credit", "citizen scoring", "behavior scoring", "social rating", "trustworthiness score", "reputation system", "citizen score", "social score", "behavior rating"],
-                "keywords_fr": ["notation sociale", "crédit social", "score citoyen", "notation comportement", "évaluation sociale", "score fiabilité", "système réputation", "score comportement", "notation citoyenne"],
-                "confidence": 1.0,
-                "article": "Article 5.1.c"
-            },
-            "5.1.d_predictive_risk": {
-                "keywords_en": ["predictive policing", "crime prediction", "risk profiling", "recidivism prediction", "pre-crime", "predict crime", "criminal risk assessment"],
-                "keywords_fr": ["police prédictive", "prédiction crime", "profilage risque", "prédiction récidive", "prédire crime", "évaluation risque criminel"],
-                "confidence": 1.0,
-                "article": "Article 5.1.d"
-            },
-            "5_manipulative": {
-                "keywords_en": ["manipulative", "manipulation technique", "coercive", "deceptive ai"],
-                "keywords_fr": ["manipulatif", "technique manipulation", "coercitif", "ia trompeuse"],
-                "confidence": 0.95,
-                "article": "Article 5"
-            }
+        # 0. Check Article 6(1) triggers (Products covered by Annex I legislation)
+        ARTICLE_6_PATTERNS = {
+            "medical_device": ["medical device", "dispositif médical", "ivdr", "mdr 2017/745", "ce marking medical", "diagnostic aid", "aide au diagnostic"],
+            "safety_component": ["safety component", "composant de sécurité", "embedded safety"],
+            "machinery": ["machinery safety", "sécurité des machines", "industrial robot"],
         }
-        
-        # Check prohibited patterns with language-aware keywords
-        for pattern_id, pattern in PROHIBITED_PATTERNS.items():
-            keywords = pattern[f"keywords_{lang}"] if lang in ["en", "fr"] else pattern["keywords_en"]
-            for kw in keywords:
+        for category, kws in ARTICLE_6_PATTERNS.items():
+            for kw in kws:
                 if kw in text_corpus:
-                    article_ref = pattern["article"]
+                    matched_rules.append(MatchedRule(
+                        rule_id=f"ART_6_{category.upper()}",
+                        category="Article 6(1) - Regulated Product" if lang=="en" else "Article 6(1) - Produit Réglementé",
+                        reason=f"Matched: {kw}",
+                        reference="Article 6(1) / Annex I"
+                    ))
+                    break
+
+        # 1. Check Prohibited Practices (Article 5)
+        for practice in use_cases_data.get("prohibited_practices", []):
+            keywords = practice.get(f"keywords_{lang}", practice.get("keywords_en", []))
+            for kw in keywords:
+                if kw.lower() in text_corpus:
                     return AnalysisResult(
                         risk_level=RiskLevel.UNACCEPTABLE,
-                        risk_score=pattern["confidence"],
-                        justification=[t["prohibited_justification"].format(kw=kw) + f" ({article_ref})"],
+                        risk_score=1.0,
+                        justification=[t["prohibited_justification"].format(kw=kw) + f" ({practice['article']})"],
                         matched_rules=[MatchedRule(
-                            rule_id=pattern_id, 
+                            rule_id=practice['id'], 
                             category="Prohibited Practice" if lang=="en" else "Pratique Interdite", 
                             reason=f"Keyword match: {kw}", 
-                            reference=article_ref
+                            reference=practice['article']
                         )],
                         obligations=t["obligations"][RiskLevel.UNACCEPTABLE],
                         next_steps=t["next_steps"][RiskLevel.UNACCEPTABLE]
                     )
 
-        # 2. Check High-Risk (Annex III)
+        # 2. Check High-Risk Sectors (Annex III)
+        sectors_data = use_cases_data.get("high_risk_sectors", {})
         keyword_matches = []
-        for rule in RuleEngine._annex_iii_rules:
-            for kw in rule.get("keywords", []):
-                if kw in text_corpus:
-                    matched_rules.append(MatchedRule(
-                        rule_id=rule['id'],
-                        category=rule['category'],
-                        reason=f"Detected match: {kw}" if lang=="en" else f"Correspondance détectée : {kw}",
-                        reference=rule['article_ref']
-                    ))
-                    keyword_matches.append(kw)
-
-        # Count user-provided flags
-        user_flags_count = 0
-        if system.is_biometric:
-            matched_rules.append(MatchedRule(rule_id="MANUAL_BIO", category="Biometrics", reason="User flagged biometrics" if lang=="en" else "Utilisateur a signalé biométrie", reference="Annex III, 1"))
-            user_flags_count += 1
-        if system.is_critical_infrastructure:
-            matched_rules.append(MatchedRule(rule_id="MANUAL_CRIT", category="Critical Infrastructure", reason="User flagged critical infrastructure" if lang=="en" else "Utilisateur a signalé infrastructure critique", reference="Annex III, 2"))
-            user_flags_count += 1
-        if system.is_safety_component:
-            matched_rules.append(MatchedRule(rule_id="MANUAL_SAFE", category="Safety", reason="User flagged safety component" if lang=="en" else "Utilisateur a signalé composant de sécurité", reference="Annex II"))
-            user_flags_count += 1
         
-        # Health Domain Classification (Annex III, 5)
-        if hasattr(system, 'health_domain') and system.health_domain:
-            if hasattr(system, 'influences_diagnosis') and system.influences_diagnosis:
-                # Health system that influences diagnosis/treatment = HIGH RISK
+        # Check by keywords in all sectors
+        for sector_id, sector_info in sectors_data.items():
+            for uc in sector_info.get("use_cases", []):
+                for kw in uc.get("keywords", []):
+                    if kw.lower() in text_corpus:
+                        matched_rules.append(MatchedRule(
+                            rule_id=uc['id'],
+                            category=sector_info[f'name_{lang}'],
+                            reason=f"Detected: {uc[f'name_{lang}']}" if lang=="en" else f"Détecté : {uc[f'name_{lang}']}",
+                            reference=sector_info['annex_ref']
+                        ))
+                        keyword_matches.append(kw)
+
+        # Check explicit sector flags from user
+        user_flags_count = 0
+        explicit_sector_mapping = {
+            "biometrics": ("biometric", "Annex III, 1"),
+            "infrastructure": ("critical_infrastructure", "Annex III, 2"),
+            "education": ("education", "Annex III, 3"),
+            "employment": ("employment", "Annex III, 4"),
+            "services": ("public_services", "Annex III, 5"),
+            "health_domain": ("health", "Article 6(1) / Annex III, 5.a"),
+            "law_enforcement": ("law_enforcement", "Annex III, 6"),
+            "migration": ("migration", "Annex III, 7"),
+            "justice": ("justice", "Annex III, 8")
+        }
+
+        for field, (sector_id, ref) in explicit_sector_mapping.items():
+            if getattr(system, field, False):
+                sector_info = sectors_data.get(sector_id, {})
                 matched_rules.append(MatchedRule(
-                    rule_id="HEALTH_DIAGNOSIS", 
-                    category="Health / Medical" if lang=="en" else "Santé / Médical", 
-                    reason="System influences diagnosis or treatment decisions" if lang=="en" else "Le système influence les décisions de diagnostic ou de traitement", 
-                    reference="Annex III, 5.a"
+                    rule_id=f"MANUAL_{sector_id.upper()}", 
+                    category=sector_info.get(f'name_{lang}', sector_id.capitalize()), 
+                    reason="User-declared sector" if lang=="en" else "Secteur déclaré par l'utilisateur", 
+                    reference=ref
                 ))
                 user_flags_count += 1
-            elif hasattr(system, 'is_administrative_only') and system.is_administrative_only:
-                # Purely administrative health task - exemption under Art. 6(3)
-                justification.append(
-                    "Health system performing purely administrative tasks (ICD-10 coding, scheduling). Article 6(3) exemption may apply if the task is narrow, does not replace human evaluation, and has no direct impact on patient care." 
-                    if lang=="en" else 
-                    "Système de santé effectuant des tâches purement administratives (codage CIM-10, planification). L'exemption de l'article 6(3) peut s'appliquer si la tâche est étroite, ne remplace pas l'évaluation humaine et n'a pas d'impact direct sur les soins aux patients."
-                )
+
+        # Check multi-tag sectors
+        if hasattr(system, 'sectors') and system.sectors:
+            for s_id in system.sectors:
+                if s_id in sectors_data:
+                    sector_info = sectors_data[s_id]
+                    # Avoid duplicates
+                    if not any(r.rule_id == f"TAG_{s_id.upper()}" for r in matched_rules):
+                        matched_rules.append(MatchedRule(
+                            rule_id=f"TAG_{s_id.upper()}",
+                            category=sector_info[f'name_{lang}'],
+                            reason="Tagged sector" if lang=="en" else "Secteur tagué",
+                            reference=sector_info['annex_ref']
+                        ))
+                        user_flags_count += 1
         
-        # Synthetic Content / Deepfake Detection (Article 50)
+        # Health Domain Specifics (Double-check for Article 6.3 exemption)
+        if getattr(system, 'health_domain', False):
+            if getattr(system, 'influences_diagnosis', False):
+                # We already likely matched MANUAL_HEALTH, but we add more specific detail
+                if not any(r.rule_id == "HEALTH_DIAGNOSIS" for r in matched_rules):
+                    matched_rules.append(MatchedRule(
+                        rule_id="HEALTH_DIAGNOSIS", 
+                        category="Health / Medical" if lang=="en" else "Santé / Médical", 
+                        reason="Influences diagnosis/treatment" if lang=="en" else "Influence diagnostic/traitement", 
+                        reference="Annex III, 5.a / MDR"
+                    ))
+                    user_flags_count += 1
+            elif getattr(system, 'is_administrative_only', False):
+                justification.append(
+                    "Exemption under Art. 6(3) may apply for purely administrative health tasks." 
+                    if lang=="en" else 
+                    "L'exemption de l'Art. 6(3) peut s'appliquer pour les tâches administratives de santé."
+                )
+
+        # Synthetic Content / Deepfake (Article 50)
         article_50_triggered = False
-        if hasattr(system, 'generates_synthetic_content') and system.generates_synthetic_content:
+        if getattr(system, 'generates_synthetic_content', False):
             article_50_triggered = True
             content_desc = ", ".join(system.content_types) if system.content_types else "synthetic content"
             matched_rules.append(MatchedRule(
                 rule_id="ART_50_DEEPFAKE", 
                 category="Deepfake / Synthetic Content" if lang=="en" else "Deepfake / Contenu Synthétique", 
-                reason=f"Generates realistic {content_desc}" if lang=="en" else f"Génère du contenu réaliste : {content_desc}", 
+                reason=f"Generates {content_desc}" if lang=="en" else f"Génère : {content_desc}", 
                 reference="Article 50(2-4)"
             ))
-            justification.append(
-                f"System generates synthetic content ({content_desc}). Article 50 transparency obligations apply: labeling, watermarking, and traceability required."
-                if lang=="en" else
-                f"Le système génère du contenu synthétique ({content_desc}). Les obligations de transparence de l'article 50 s'appliquent : étiquetage, filigrane et traçabilité requis."
-            )
-        
-        # Check additional context fields if provided
-        if hasattr(system, 'user_type') and system.user_type == 'vulnerable_groups':
-            keyword_matches.append('vulnerable_groups')
-        if hasattr(system, 'affects_rights') and system.affects_rights:
-            keyword_matches.append('affects_rights')
 
         if matched_rules:
             risk_level = RiskLevel.HIGH
@@ -224,19 +224,64 @@ class RuleEngine:
 
         # 3. Check Limited Risk
         if risk_level == RiskLevel.MINIMAL:
-            transparency_keywords = ["chatbot", "deep fake", "emotion recognition", "biometric categorization", "synthetic content"]
-            for kw in transparency_keywords:
-                if kw in text_corpus:
-                    risk_level = RiskLevel.LIMITED
-                    justification.append(t["limited_justification"].format(kw=kw))
-                    matched_rules.append(MatchedRule(rule_id="ART_50", category="Transparency", reason=f"Keyword match: {kw}", reference="Article 50"))
-                    break
+            limited_uc = use_cases_data.get("limited_risk", [])
+            for luc in limited_uc:
+                for kw in luc.get("keywords", []):
+                    if kw.lower() in text_corpus:
+                        risk_level = RiskLevel.LIMITED
+                        justification.append(t["limited_justification"].format(kw=kw))
+                        matched_rules.append(MatchedRule(
+                            rule_id=luc['id'], 
+                            category="Transparency" if lang=="en" else "Transparence", 
+                            reason=f"Match: {kw}", 
+                            reference=luc.get('article', 'Article 50')
+                        ))
+                        break
+                if risk_level == RiskLevel.LIMITED: break
         
-        # If Article 50 triggered but no other High Risk, ensure Limited Risk minimum
         if article_50_triggered and risk_level == RiskLevel.MINIMAL:
             risk_level = RiskLevel.LIMITED
 
-        # 4. Final results
+        # 4. Check GPAI (General Purpose AI)
+        gpai_data = use_cases_data.get("gpai", {})
+        is_gpai = False
+        
+        # Check standard GPAI
+        for kw in gpai_data.get("standard", {}).get("keywords", []):
+            if kw.lower() in text_corpus:
+                is_gpai = True
+                break
+        for ex in gpai_data.get("standard", {}).get("examples", []):
+            if ex.lower() in text_corpus:
+                is_gpai = True
+                break
+                
+        if is_gpai:
+            # Check Systemic Risk
+            is_systemic = False
+            for kw in gpai_data.get("systemic_risk", {}).get("keywords", []):
+                if kw.lower() in text_corpus:
+                    is_systemic = True
+                    break
+            for ex in gpai_data.get("systemic_risk", {}).get("examples", []):
+                if ex.lower() in text_corpus:
+                    is_systemic = True
+                    break
+            
+            # Simple FLOPS check in text
+            if "10^25" in text_corpus or "10**25" in text_corpus or "flops" in text_corpus:
+                is_systemic = True
+                
+            matched_rules.append(MatchedRule(
+                rule_id="GPAI_SYSTEMIC" if is_systemic else "GPAI_STANDARD",
+                category="GPAI and Systemic Risk" if lang=="en" else "GPAI et Risque Systémique",
+                reason="Systemic Risk Model (>10^25 FLOPS)" if is_systemic else "General Purpose AI Model",
+                reference="Article 51" if is_systemic else "Article 53"
+            ))
+            if risk_level != RiskLevel.UNACCEPTABLE:
+                risk_level = RiskLevel.HIGH # GPAI with systemic risk or used in HR contexts
+
+        # 5. Final results
         if risk_level == RiskLevel.MINIMAL:
             justification.append(t["minimal_justification"])
 

@@ -577,6 +577,104 @@ export default function ResultsPage() {
                             </Card>
                         </motion.div>
 
+                        {/* Sectoral Guidance */}
+                        {inputData?.sectors && inputData.sectors.length > 0 && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.2 }}
+                            >
+                                <Card className="glass-card border-0 shadow-xl overflow-hidden">
+                                    <CardHeader className="border-b border-border bg-gradient-to-br from-primary/5 to-accent/5">
+                                        <CardTitle className="flex items-center gap-2 text-lg sm:text-xl text-foreground">
+                                            <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+                                            {locale === 'fr' ? 'Conseils Spécifiques Sectoriels' : 'Sector-Specific Guidance'}
+                                        </CardTitle>
+                                        <CardDescription className="text-xs sm:text-sm">
+                                            {locale === 'fr'
+                                                ? 'Obligations supplémentaires liées à vos domaines d\'activité'
+                                                : 'Additional obligations related to your specific domains'}
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="pt-6 space-y-4">
+                                        {inputData.sectors.map((sector: string) => {
+                                            const guidance: Record<string, { title: string, items: string[] }> = {
+                                                health: {
+                                                    title: locale === 'fr' ? "🏥 Santé & Médical" : "🏥 Health & Medical",
+                                                    items: locale === 'fr' ? [
+                                                        "Validation clinique obligatoire des performances",
+                                                        "Conformité au RGPD (Art. 9) pour les données sensibles",
+                                                        "Disclaimers sur la non-substitution médicale requis"
+                                                    ] : [
+                                                        "Mandatory clinical performance validation",
+                                                        "GDPR Art. 9 compliance for sensitive data",
+                                                        "Mandatory medical non-substitution disclaimers"
+                                                    ]
+                                                },
+                                                employment: {
+                                                    title: locale === 'fr' ? "💼 Emploi & RH" : "💼 Employment & HR",
+                                                    items: locale === 'fr' ? [
+                                                        "Analyse d'impact sur les droits fondamentaux (FRIA) requise",
+                                                        "Information obligatoire des candidats/employés sur l'usage de l'IA",
+                                                        "Audit des biais algorithmiques (discrimination à l'embauche)"
+                                                    ] : [
+                                                        "Fundamental Rights Impact Assessment (FRIA) required",
+                                                        "Mandatory notification of AI usage to candidates/employees",
+                                                        "Audit for algorithmic bias (hiring discrimination)"
+                                                    ]
+                                                },
+                                                financial: {
+                                                    title: locale === 'fr' ? "💳 Services Financiers" : "💳 Financial Services",
+                                                    items: locale === 'fr' ? [
+                                                        "Explicabilité des décisions (scoring de crédit)",
+                                                        "Conformité aux réglementations bancaires existantes (EBA)",
+                                                        "Droit de contestation humaine pour les refus de prêt"
+                                                    ] : [
+                                                        "Decision explainability (credit scoring)",
+                                                        "Compliance with existing financial regulations (EBA)",
+                                                        "Right to human contestation for loan refusals"
+                                                    ]
+                                                },
+                                                education: {
+                                                    title: locale === 'fr' ? "🎓 Éducation" : "🎓 Education",
+                                                    items: locale === 'fr' ? [
+                                                        "Supervision humaine stricte des notations automatiques",
+                                                        "Protection renforcée des données des mineurs",
+                                                        "Mécanisme de recours pour les décisions d'admission"
+                                                    ] : [
+                                                        "Strict human oversight for automated grading",
+                                                        "Enhanced protection for minor data",
+                                                        "Recourse mechanism for admission decisions"
+                                                    ]
+                                                }
+                                            }
+
+                                            const current = guidance[sector]
+                                            if (!current) return null
+
+                                            return (
+                                                <div key={sector} className="p-4 rounded-2xl bg-secondary/50 border border-border transition-all hover:bg-card">
+                                                    <h4 className="font-bold text-sm mb-3">
+                                                        <Badge variant="outline" className="bg-primary/10 border-primary/20 text-primary">
+                                                            {current.title}
+                                                        </Badge>
+                                                    </h4>
+                                                    <ul className="space-y-2">
+                                                        {current.items.map((item, idx) => (
+                                                            <li key={idx} className="text-xs sm:text-sm text-foreground flex items-start gap-2">
+                                                                <div className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                                                                {item}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            )
+                                        })}
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
+                        )}
+
                         {/* Enhanced Compliance Checklist */}
                         {(() => {
                             const checklist = getChecklist(result.risk_level);

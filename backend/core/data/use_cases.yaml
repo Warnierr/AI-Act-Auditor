@@ -1,0 +1,469 @@
+###################################################
+# EU AI Act - Complete Use Case Taxonomy
+# Version 1.0 - January 2026
+# Aligned with Regulation (EU) 2024/1689
+###################################################
+
+# ==========================================
+# PROHIBITED PRACTICES (Article 5)
+# ==========================================
+prohibited_practices:
+  - id: "5.1.a_subliminal"
+    category: "Manipulation"
+    keywords_en: ["subliminal", "subconscious manipulation", "hidden influence", "imperceptible technique"]
+    keywords_fr: ["subliminal", "manipulation subliminale", "influence cachée", "technique imperceptible"]
+    article: "Article 5.1.a"
+    description_en: "AI using subliminal techniques to materially distort behavior"
+    description_fr: "IA utilisant des techniques subliminales pour modifier le comportement"
+    
+  - id: "5.1.b_exploitation"
+    category: "Exploitation"
+    keywords_en: ["exploit vulnerabilities", "vulnerable groups", "child exploitation", "disability exploitation", "economic vulnerability"]
+    keywords_fr: ["exploiter vulnérabilités", "groupes vulnérables", "exploitation enfants", "exploitation handicap", "vulnérabilité économique"]
+    article: "Article 5.1.b"
+    description_en: "AI exploiting vulnerabilities of specific groups"
+    description_fr: "IA exploitant les vulnérabilités de groupes spécifiques"
+    
+  - id: "5.1.c_social_scoring"
+    category: "Social Scoring"
+    keywords_en: ["social scoring", "citizen score", "social credit", "trustworthiness score", "behavior rating"]
+    keywords_fr: ["notation sociale", "score citoyen", "crédit social", "score fiabilité", "notation comportement"]
+    article: "Article 5.1.c"
+    description_en: "Social scoring by public authorities"
+    description_fr: "Notation sociale par les autorités publiques"
+    
+  - id: "5.1.d_predictive_policing"
+    category: "Criminal Prediction"
+    keywords_en: ["predictive policing", "crime prediction", "recidivism prediction", "pre-crime", "criminal profiling"]
+    keywords_fr: ["police prédictive", "prédiction crime", "prédiction récidive", "profilage criminel"]
+    article: "Article 5.1.d"
+    description_en: "Criminal risk assessment based solely on profiling"
+    description_fr: "Évaluation du risque criminel basée uniquement sur le profilage"
+    
+  - id: "5.1.e_facial_scraping"
+    category: "Biometric Surveillance"
+    keywords_en: ["facial scraping", "untargeted scraping", "facial database from internet", "mass face collection"]
+    keywords_fr: ["scraping facial", "collecte massive visages", "base données faciales internet"]
+    article: "Article 5.1.e"
+    description_en: "Untargeted scraping of facial images from internet/CCTV"
+    description_fr: "Collecte non ciblée d'images faciales depuis internet/vidéosurveillance"
+    
+  - id: "5.1.f_emotion_work"
+    category: "Emotion Recognition"
+    keywords_en: ["emotion recognition workplace", "emotion detection employee", "affect recognition work"]
+    keywords_fr: ["reconnaissance émotions travail", "détection émotions employé"]
+    article: "Article 5.1.f"
+    description_en: "Emotion recognition in workplace (except medical/safety)"
+    description_fr: "Reconnaissance des émotions au travail (sauf médical/sécurité)"
+    
+  - id: "5.1.g_biometric_categorization"
+    category: "Biometric Categorization"
+    keywords_en: ["biometric categorization race", "categorize political opinions", "categorize sexual orientation", "categorize religion"]
+    keywords_fr: ["catégorisation biométrique race", "catégoriser opinions politiques", "catégoriser orientation sexuelle"]
+    article: "Article 5.1.g"
+    description_en: "Biometric categorization based on sensitive attributes"
+    description_fr: "Catégorisation biométrique basée sur des attributs sensibles"
+    
+  - id: "5.1.h_realtime_biometric"
+    category: "Real-time Biometric"
+    keywords_en: ["real-time facial recognition public", "real-time biometric identification public spaces", "live face recognition"]
+    keywords_fr: ["reconnaissance faciale temps réel public", "identification biométrique temps réel espaces publics"]
+    article: "Article 5.1.h"
+    description_en: "Real-time remote biometric identification in public spaces"
+    description_fr: "Identification biométrique à distance en temps réel dans les espaces publics"
+
+# ==========================================
+# HIGH RISK SECTORS (Annex III)
+# ==========================================
+high_risk_sectors:
+  # Category 1: Biometrics
+  biometric:
+    annex_ref: "Annex III, 1"
+    name_en: "Biometric Identification"
+    name_fr: "Identification Biométrique"
+    icon: "🔐"
+    use_cases:
+      - id: "bio_remote_id"
+        name_en: "Remote identity verification"
+        name_fr: "Vérification d'identité à distance"
+        keywords: ["identity verification", "KYC", "know your customer", "remote id"]
+      - id: "bio_facial"
+        name_en: "Facial recognition (non-realtime)"
+        name_fr: "Reconnaissance faciale (différé)"
+        keywords: ["facial recognition", "face matching", "face verification"]
+      - id: "bio_iris"
+        name_en: "Iris/retina recognition"
+        name_fr: "Reconnaissance iris/rétine"
+        keywords: ["iris scan", "retina scan", "eye biometric"]
+      - id: "bio_fingerprint"
+        name_en: "Fingerprint/palmprint"
+        name_fr: "Empreintes digitales/palmaires"
+        keywords: ["fingerprint", "palmprint", "hand geometry"]
+      - id: "bio_voice"
+        name_en: "Voice biometric"
+        name_fr: "Biométrie vocale"
+        keywords: ["voice recognition", "speaker identification", "voice biometric"]
+
+  # Category 2: Critical Infrastructure
+  critical_infrastructure:
+    annex_ref: "Annex III, 2"
+    name_en: "Critical Infrastructure"
+    name_fr: "Infrastructure Critique"
+    icon: "🏗️"
+    use_cases:
+      - id: "infra_energy"
+        name_en: "Energy grid management"
+        name_fr: "Gestion réseau électrique"
+        keywords: ["power grid", "electricity", "energy management", "smart grid"]
+      - id: "infra_water"
+        name_en: "Water/gas network control"
+        name_fr: "Contrôle réseau eau/gaz"
+        keywords: ["water supply", "gas network", "utility management"]
+      - id: "infra_traffic"
+        name_en: "Traffic management"
+        name_fr: "Gestion du trafic"
+        keywords: ["traffic control", "road management", "railway control", "air traffic"]
+      - id: "infra_telecom"
+        name_en: "Telecom network management"
+        name_fr: "Gestion réseaux télécom"
+        keywords: ["telecommunications", "network infrastructure", "5G management"]
+
+  # Category 3: Education
+  education:
+    annex_ref: "Annex III, 3"
+    name_en: "Education & Vocational Training"
+    name_fr: "Éducation & Formation"
+    icon: "🎓"
+    use_cases:
+      - id: "edu_admission"
+        name_en: "Student admission/orientation"
+        name_fr: "Admission/orientation étudiants"
+        keywords: ["student admission", "school placement", "university selection"]
+      - id: "edu_grading"
+        name_en: "Automated grading"
+        name_fr: "Notation automatique"
+        keywords: ["auto grading", "exam scoring", "assessment AI"]
+      - id: "edu_plagiarism"
+        name_en: "Plagiarism/cheating detection"
+        name_fr: "Détection plagiat/triche"
+        keywords: ["plagiarism detection", "cheating detection", "exam proctoring"]
+      - id: "edu_path"
+        name_en: "Learning path recommendation"
+        name_fr: "Recommandation parcours"
+        keywords: ["learning recommendation", "course recommendation", "educational path"]
+
+  # Category 4: Employment
+  employment:
+    annex_ref: "Annex III, 4"
+    name_en: "Employment & HR"
+    name_fr: "Emploi & RH"
+    icon: "💼"
+    use_cases:
+      - id: "emp_cv_screening"
+        name_en: "CV screening/ranking"
+        name_fr: "Tri/ranking CV"
+        keywords: ["cv screening", "resume ranking", "candidate filtering", "ATS"]
+      - id: "emp_interview"
+        name_en: "Interview analysis"
+        name_fr: "Analyse d'entretien"
+        keywords: ["video interview analysis", "interview AI", "candidate assessment"]
+      - id: "emp_performance"
+        name_en: "Performance prediction"
+        name_fr: "Prédiction performance"
+        keywords: ["performance prediction", "employee evaluation", "productivity AI"]
+      - id: "emp_monitoring"
+        name_en: "Employee monitoring"
+        name_fr: "Surveillance employés"
+        keywords: ["employee monitoring", "workplace surveillance", "productivity tracking"]
+      - id: "emp_termination"
+        name_en: "Promotion/termination assistance"
+        name_fr: "Assistance promotion/licenciement"
+        keywords: ["promotion decision", "termination AI", "layoff prediction"]
+
+  # Category 5: Essential Services
+  public_services:
+    annex_ref: "Annex III, 5"
+    name_en: "Essential Public/Private Services"
+    name_fr: "Services Publics/Privés Essentiels"
+    icon: "🏛️"
+    use_cases:
+      - id: "svc_benefit"
+        name_en: "Social benefit eligibility"
+        name_fr: "Éligibilité prestations sociales"
+        keywords: ["benefit eligibility", "social welfare", "welfare assessment"]
+      - id: "svc_fraud"
+        name_en: "Social fraud detection"
+        name_fr: "Détection fraude sociale"
+        keywords: ["fraud detection social", "benefit fraud", "welfare fraud"]
+      - id: "svc_allocation"
+        name_en: "Public resource allocation"
+        keywords: ["resource allocation", "public housing", "healthcare allocation"]
+
+  # Category 5c: Health & Medical Devices
+  health:
+    annex_ref: "Article 6(1) & Annex III, 5.a"
+    name_en: "Health & Medical Devices"
+    name_fr: "Santé & Dispositifs Médicaux"
+    icon: "🏥"
+    use_cases:
+      - id: "health_diagnosis"
+        name_en: "Medical diagnosis aid"
+        name_fr: "Aide au diagnostic médical"
+        keywords: ["diagnosis", "diagnostic", "medical device", "treatment decision", "pathology detection", "dispositif médical", "médical"]
+      - id: "health_triage"
+        name_en: "Emergency triage"
+        name_fr: "Triage des urgences"
+        keywords: ["triage", "emergency call evaluation", "patient prioritization", "urgences"]
+      - id: "health_monitoring"
+        name_en: "Vital signs monitoring"
+        name_fr: "Surveillance des signes vitaux"
+        keywords: ["vital signs", "monitoring patient", "alarm system medical", "signes vitaux"]
+
+  # Category 5b: Financial Services
+  financial:
+    annex_ref: "Annex III, 5.b"
+    name_en: "Financial Services"
+    name_fr: "Services Financiers"
+    icon: "💳"
+    use_cases:
+      - id: "fin_credit"
+        name_en: "Credit scoring"
+        name_fr: "Scoring crédit"
+        keywords: ["credit score", "creditworthiness", "loan eligibility"]
+      - id: "fin_insurance"
+        name_en: "Insurance risk assessment"
+        name_fr: "Évaluation risque assurance"
+        keywords: ["insurance risk", "underwriting AI", "insurance pricing"]
+      - id: "fin_fraud"
+        name_en: "Financial fraud detection"
+        name_fr: "Détection fraude financière"
+        keywords: ["fraud detection", "transaction monitoring", "AML"]
+      - id: "fin_mortgage"
+        name_en: "Mortgage evaluation"
+        name_fr: "Évaluation hypothécaire"
+        keywords: ["mortgage", "home loan", "property valuation AI"]
+
+  # Category 6: Law Enforcement
+  law_enforcement:
+    annex_ref: "Annex III, 6"
+    name_en: "Law Enforcement"
+    name_fr: "Application de la Loi"
+    icon: "👮"
+    use_cases:
+      - id: "law_recidivism"
+        name_en: "Recidivism risk assessment"
+        name_fr: "Évaluation risque récidive"
+        keywords: ["recidivism", "reoffending risk", "criminal risk"]
+      - id: "law_evidence"
+        name_en: "Evidence reliability analysis"
+        name_fr: "Analyse fiabilité preuves"
+        keywords: ["evidence analysis", "forensic AI", "proof reliability"]
+      - id: "law_polygraph"
+        name_en: "AI lie detection"
+        name_fr: "Détection mensonge IA"
+        keywords: ["lie detection", "polygraph AI", "deception detection"]
+      - id: "law_profiling"
+        name_en: "Criminal profiling"
+        name_fr: "Profilage criminel"
+        keywords: ["criminal profiling", "suspect analysis", "behavioral analysis"]
+
+  # Category 7: Migration
+  migration:
+    annex_ref: "Annex III, 7"
+    name_en: "Migration, Asylum & Border Control"
+    name_fr: "Migration, Asile & Contrôle Frontalier"
+    icon: "🛂"
+    use_cases:
+      - id: "mig_document"
+        name_en: "Document verification"
+        name_fr: "Vérification documents"
+        keywords: ["passport verification", "visa check", "document authenticity"]
+      - id: "mig_risk"
+        name_en: "Immigration risk assessment"
+        name_fr: "Évaluation risque migratoire"
+        keywords: ["migration risk", "immigration assessment", "border risk"]
+      - id: "mig_asylum"
+        name_en: "Asylum application assistance"
+        name_fr: "Assistance demande asile"
+        keywords: ["asylum", "refugee application", "asylum claim"]
+
+  # Category 8: Justice
+  justice:
+    annex_ref: "Annex III, 8"
+    name_en: "Justice Administration"
+    name_fr: "Administration de la Justice"
+    icon: "⚖️"
+    use_cases:
+      - id: "jus_decision"
+        name_en: "Judicial decision assistance"
+        name_fr: "Assistance décision judiciaire"
+        keywords: ["judicial AI", "court decision", "sentencing AI"]
+      - id: "jus_research"
+        name_en: "Legal research AI"
+        name_fr: "Recherche juridique IA"
+        keywords: ["legal research", "case law analysis", "jurisprudence AI"]
+
+# ==========================================
+# LIMITED RISK (Transparency Required)
+# ==========================================
+limited_risk:
+  - id: "gen_ai"
+    name_en: "Generative AI"
+    name_fr: "IA Générative"
+    keywords: ["chatbot", "LLM", "generative", "ChatGPT", "Claude", "text generation"]
+    article: "Article 50"
+    
+  - id: "deepfake"
+    name_en: "Deepfakes"
+    name_fr: "Deepfakes"
+    keywords: ["deepfake", "synthetic video", "synthetic audio", "face swap"]
+    article: "Article 50(4)"
+    
+  - id: "chatbot"
+    name_en: "Chatbots (non-critical)"
+    name_fr: "Chatbots (non-critiques)"
+    keywords: ["chatbot", "virtual assistant", "conversational AI"]
+    article: "Article 50(1)"
+    
+  - id: "content_rec"
+    name_en: "Content recommendation"
+    name_fr: "Recommandation de contenu"
+    keywords: ["recommendation engine", "content suggestion", "personalization"]
+    article: "Article 50"
+
+# ==========================================
+# MINIMAL RISK (No Specific Obligations)
+# ==========================================
+minimal_risk:
+  - id: "min_spam"
+    name_en: "Spam filters"
+    name_fr: "Filtres anti-spam"
+    keywords: ["spam filter", "email filtering"]
+    
+  - id: "min_game"
+    name_en: "Video game AI"
+    name_fr: "IA jeux vidéo"
+    keywords: ["game AI", "NPC", "game bot"]
+    
+  - id: "min_ecommerce"
+    name_en: "E-commerce recommendations"
+    name_fr: "Recommandations e-commerce"
+    keywords: ["product recommendation", "shopping suggestion"]
+    
+  - id: "min_gps"
+    name_en: "GPS navigation"
+    name_fr: "Navigation GPS"
+    keywords: ["GPS", "navigation", "route planning"]
+    
+  - id: "min_spell"
+    name_en: "Spell checkers"
+    name_fr: "Correcteurs orthographiques"
+    keywords: ["spell check", "grammar check", "autocorrect"]
+    
+  - id: "min_translate"
+    name_en: "Translation"
+    name_fr: "Traduction"
+    keywords: ["translation", "machine translation"]
+
+# ==========================================
+# GPAI (General Purpose AI)
+# ==========================================
+gpai:
+  standard:
+    name_en: "General Purpose AI"
+    name_fr: "IA à Usage Général"
+    article: "Article 51-53"
+    keywords: ["foundation model", "LLM", "large language model", "multimodal"]
+    examples: ["GPT-4", "Claude 3", "Gemini", "Llama 3", "Mistral"]
+    
+  systemic_risk:
+    name_en: "GPAI with Systemic Risk"
+    name_fr: "GPAI à Risque Systémique"
+    article: "Article 51(1)"
+    threshold: "10^25 FLOPS training compute"
+    keywords: ["systemic risk", "high capability", "frontier model"]
+    examples: ["GPT-4 Turbo", "Claude 3 Opus", "Gemini Ultra"]
+
+# ==========================================
+# SECTOR TEMPLATES (Presets)
+# ==========================================
+sector_templates:
+  - id: "medical_chatbot"
+    name_en: "Medical Chatbot"
+    name_fr: "Chatbot Médical"
+    icon: "🏥"
+    expected_risk: "HIGH"
+    preset:
+      health_domain: true
+      influences_diagnosis: true
+      sectors: ["health"]
+      data_types: ["health", "personal", "sensitive"]
+      
+  - id: "cv_screening"
+    name_en: "CV Screening System"
+    name_fr: "Système de Tri CV"
+    icon: "💼"
+    expected_risk: "HIGH"
+    preset:
+      sectors: ["employment"]
+      output_type: "classifications"
+      affects_rights: true
+      
+  - id: "credit_scoring"
+    name_en: "Credit Scoring"
+    name_fr: "Scoring Crédit"
+    icon: "💳"
+    expected_risk: "HIGH"
+    preset:
+      sectors: ["financial"]
+      output_type: "predictions"
+      affects_rights: true
+      data_types: ["financial", "personal"]
+      
+  - id: "deepfake_generator"
+    name_en: "Deepfake Generator"
+    name_fr: "Générateur Deepfake"
+    icon: "🎭"
+    expected_risk: "LIMITED"
+    preset:
+      generates_synthetic_content: true
+      content_types: ["image", "video", "audio"]
+      is_gen_ai: true
+      
+  - id: "student_admission"
+    name_en: "Student Admission System"
+    name_fr: "Système Admission Étudiants"
+    icon: "🎓"
+    expected_risk: "HIGH"
+    preset:
+      sectors: ["education"]
+      output_type: "decisions"
+      affects_rights: true
+      user_type: "general_public"
+      
+  - id: "fraud_detection"
+    name_en: "Fraud Detection"
+    name_fr: "Détection de Fraude"
+    icon: "🔍"
+    expected_risk: "HIGH"
+    preset:
+      sectors: ["financial"]
+      output_type: "classifications"
+      data_types: ["financial", "personal"]
+      
+  - id: "customer_chatbot"
+    name_en: "Customer Service Chatbot"
+    name_fr: "Chatbot Service Client"
+    icon: "💬"
+    expected_risk: "LIMITED"
+    preset:
+      is_gen_ai: true
+      sectors: []
+      user_type: "general_public"
+      
+  - id: "custom"
+    name_en: "Custom Audit"
+    name_fr: "Audit Personnalisé"
+    icon: "✏️"
+    expected_risk: null
+    preset: {}

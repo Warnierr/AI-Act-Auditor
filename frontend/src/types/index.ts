@@ -47,6 +47,7 @@ export interface AISystemInput {
 
     deployment_phase: "On Market" | "In Service" | "Development";
     language?: string;
+    sectors?: Sector[];
 }
 
 export interface MatchedRule {
@@ -72,3 +73,26 @@ export interface AuditHistory {
     result: AnalysisResult;
     savedDate: string;
 }
+
+// Sector template for quick audit presets
+export interface SectorTemplate {
+    id: string;
+    name_en: string;
+    name_fr: string;
+    icon: string;
+    expected_risk: "HIGH" | "LIMITED" | "MINIMAL" | null;
+    preset: Partial<AISystemInput>;
+}
+
+// Available sectors for multi-tagging
+export type Sector =
+    | "health"
+    | "biometric"
+    | "infrastructure"
+    | "education"
+    | "employment"
+    | "public_services"
+    | "law_enforcement"
+    | "migration"
+    | "financial"
+    | "justice";
