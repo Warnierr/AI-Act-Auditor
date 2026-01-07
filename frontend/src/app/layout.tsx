@@ -4,6 +4,7 @@ import "./globals.css";
 import { LanguageProvider } from "@/lib/LanguageContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ChatAssistant } from "@/components/chat/ChatAssistant";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800", "900"] });
 
@@ -24,6 +25,7 @@ export default function RootLayout({
                     <LanguageProvider>
                         {children}
                         <ChatAssistant />
+                        <Toaster position="top-right" expand={false} richColors />
                     </LanguageProvider>
                 </ThemeProvider>
             </body>

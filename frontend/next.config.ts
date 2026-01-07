@@ -11,6 +11,23 @@ const nextConfig: NextConfig = {
       },
     ]
   },
+  
+  // Performance optimizations
+  compress: true,
+  
+  // Optimize images
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 60,
+  },
+  
+  // Production optimizations
+  productionBrowserSourceMaps: false,
+  
+  // Experimental features for better performance
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'framer-motion'],
+  },
 };
 
 export default nextConfig;

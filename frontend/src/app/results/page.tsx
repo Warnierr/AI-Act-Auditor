@@ -27,17 +27,31 @@ import {
     ExternalLink,
     Printer,
     Share2,
-    Bot
+    Bot,
+    Save,
+    History
 } from "lucide-react"
 import { exportReport } from "@/lib/api"
 import { useTranslation } from "@/lib/LanguageContext"
-import { AdvisorChat } from "@/components/AdvisorChat"
+import dynamic from "next/dynamic"
+import { toast } from "sonner"
+
+// Lazy load heavy components
+const AdvisorChat = dynamic(() => import("@/components/AdvisorChat").then(mod => ({ default: mod.AdvisorChat })), {
+    loading: () => <div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>,
+    ssr: false
+});
+import { saveAudit } from "@/lib/storage"
+import { getChecklist, getChecklistStats } from "@/data/checklist"
+import { ChecklistItemComponent } from "@/components/ChecklistItem"
 
 export default function ResultsPage() {
     const { t, locale, setLocale } = useTranslation()
     const [result, setResult] = useState<AnalysisResult | null>(null)
     const [inputData, setInputData] = useState<AISystemInput | null>(null)
     const [downloading, setDownloading] = useState(false)
+    const [isSaved, setIsSaved] = useState(false)
+    const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({})
     const router = useRouter()
     const advisorRef = useRef<HTMLDivElement>(null)
 
@@ -67,25 +81,94 @@ export default function ResultsPage() {
         }
     }, [result])
 
+    // Load and save checklist progress from/to localStorage
+    useEffect(() => {
+        if (!result) return;
+        
+        const storageKey = `checklist_${result.risk_level}`;
+        const stored = localStorage.getItem(storageKey);
+        if (stored) {
+            try {
+                setCheckedItems(JSON.parse(stored));
+            } catch (error) {
+                console.error('Failed to load checklist state:', error);
+            }
+        }
+    }, [result]);
+
+    const handleChecklistToggle = (itemId: string, checked: boolean) => {
+        if (!result) return;
+        
+        const newCheckedItems = { ...checkedItems, [itemId]: checked };
+        setCheckedItems(newCheckedItems);
+        
+        // Save to localStorage
+        const storageKey = `checklist_${result.risk_level}`;
+        localStorage.setItem(storageKey, JSON.stringify(newCheckedItems));
+    };
+
     const handleDownload = async () => {
         if (!inputData) return;
         setDownloading(true);
+        
+        const fileName = `AI_Risk_Report_${inputData.name.replace(/\s+/g, '_')}.pdf`;
+        const toastId = toast.loading(
+            locale === 'fr' 
+                ? 'Génération du rapport PDF...' 
+                : 'Generating PDF report...'
+        );
+        
         try {
             const blob = await exportReport(inputData);
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `AI_Risk_Report_${inputData.name.replace(/\s+/g, '_')}.pdf`;
+            a.download = fileName;
             document.body.appendChild(a);
             a.click();
             a.remove();
+            window.URL.revokeObjectURL(url);
+            
+            toast.success(
+                locale === 'fr' 
+                    ? `Rapport téléchargé : ${fileName}` 
+                    : `Report downloaded: ${fileName}`,
+                { id: toastId, duration: 5000 }
+            );
         } catch (e) {
             console.error(e);
-            alert(locale === 'fr' ? "Erreur lors du téléchargement." : "Failed to download PDF");
+            const errorMsg = e instanceof Error ? e.message : 'Unknown error';
+            toast.error(
+                locale === 'fr' 
+                    ? `Erreur lors du téléchargement : ${errorMsg}` 
+                    : `Download failed: ${errorMsg}`,
+                { id: toastId, duration: 7000 }
+            );
         } finally {
             setDownloading(false);
         }
     }
+
+    const handleSave = () => {
+        if (!inputData || !result) return;
+        
+        try {
+            const id = saveAudit(inputData, result);
+            setIsSaved(true);
+            toast.success(
+                locale === 'fr' 
+                    ? 'Audit sauvegardé dans l\'historique' 
+                    : 'Audit saved to history',
+                { duration: 3000 }
+            );
+        } catch (error) {
+            toast.error(
+                locale === 'fr' 
+                    ? 'Erreur lors de la sauvegarde' 
+                    : 'Failed to save audit'
+            );
+        }
+    };
 
     const handlePrint = () => {
         // Prepare document title for print
@@ -259,6 +342,28 @@ export default function ResultsPage() {
                     </div>
                 </motion.div>
 
+                {/* AI Verification Prompt */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="mb-6"
+                >
+                    <Alert className="border-amber-200 bg-amber-50/50 dark:bg-amber-900/10">
+                        <Bot className="h-4 w-4 text-amber-600" />
+                        <AlertTitle className="text-amber-900 dark:text-amber-100 font-semibold">
+                            {locale === 'fr' 
+                                ? '💡 Validez votre classification avec l\'IA' 
+                                : '💡 Validate your classification with AI'}
+                        </AlertTitle>
+                        <AlertDescription className="text-amber-800 dark:text-amber-200">
+                            {locale === 'fr' 
+                                ? 'Notre conseiller IA peut analyser votre système de manière plus approfondie et identifier des risques potentiels que l\'évaluation automatique pourrait avoir manqués. Consultez la section "Conseiller IA" ci-dessous pour une analyse critique.' 
+                                : 'Our AI advisor can analyze your system more deeply and identify potential risks that the automated assessment might have missed. Check the "AI Advisor" section below for critical analysis.'}
+                        </AlertDescription>
+                    </Alert>
+                </motion.div>
+
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
                     {/* Left: System Profile */}
                     <div className="lg:col-span-1 space-y-4 sm:space-y-6">
@@ -312,6 +417,30 @@ export default function ResultsPage() {
                             transition={{ delay: 0.2 }}
                             className="space-y-2 sm:space-y-3"
                         >
+                            <Button 
+                                variant={isSaved ? "default" : "outline"} 
+                                className="w-full justify-start h-10 sm:h-12 text-xs sm:text-sm" 
+                                onClick={handleSave}
+                                disabled={isSaved}
+                            >
+                                {isSaved ? (
+                                    <>
+                                        <Check className="mr-2 sm:mr-3 h-3 w-3 sm:h-4 sm:w-4" />
+                                        {locale === 'fr' ? 'Audit sauvegardé' : 'Audit saved'}
+                                    </>
+                                ) : (
+                                    <>
+                                        <Save className="mr-2 sm:mr-3 h-3 w-3 sm:h-4 sm:w-4" />
+                                        {locale === 'fr' ? 'Sauvegarder l\'audit' : 'Save audit'}
+                                    </>
+                                )}
+                            </Button>
+                            <Button variant="outline" className="w-full justify-start h-10 sm:h-12 text-xs sm:text-sm text-foreground border-border bg-card hover:bg-muted" asChild>
+                                <Link href="/history">
+                                    <History className="mr-2 sm:mr-3 h-3 w-3 sm:h-4 sm:w-4" />
+                                    {locale === 'fr' ? 'Voir l\'historique' : 'View history'}
+                                </Link>
+                            </Button>
                             <Button variant="outline" className="w-full justify-start h-10 sm:h-12 text-xs sm:text-sm text-foreground border-border bg-card hover:bg-muted" onClick={handlePrint}>
                                 <Printer className="mr-2 sm:mr-3 h-3 w-3 sm:h-4 sm:w-4" />
                                 {locale === 'fr' ? 'Imprimer le rapport' : 'Print report'}
@@ -377,58 +506,74 @@ export default function ResultsPage() {
                             </Card>
                         </motion.div>
 
-                        {/* Obligations Checklist */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.25 }}
-                        >
-                            <Card className="border-0 shadow-xl overflow-hidden bg-gradient-to-br from-foreground to-foreground/90">
-                                <CardHeader className="border-b border-white/10 pb-4 sm:pb-6">
-                                    <CardTitle className="flex items-center gap-2 text-lg sm:text-xl text-background">
-                                        <FileCheck className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-400" />
-                                        {t.common.complianceChecklist}
-                                    </CardTitle>
-                                    <CardDescription className="text-background/70 text-xs sm:text-sm">
-                                        {locale === 'fr' ? `Actions requises pour un niveau ${result.risk_level}` : `Required actions for ${result.risk_level}`}
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent className="pt-4 sm:pt-6">
-                                    <ul className="grid grid-cols-1 gap-2 sm:gap-3">
-                                        {result.obligations.map((obit, i) => {
-                                            // Extract Article number to create a link
-                                            const match = obit.match(/Art\.\s*(\d+)/);
-                                            const articleNum = match ? match[1] : null;
-                                            const link = articleNum
-                                                ? `https://artificialintelligenceact.eu/article/${articleNum}/`
-                                                : "https://eur-lex.europa.eu/eli/reg/2024/1689/oj";
-
-                                            return (
-                                                <motion.li
-                                                    key={i}
+                        {/* Enhanced Compliance Checklist */}
+                        {(() => {
+                            const checklist = getChecklist(result.risk_level);
+                            const stats = getChecklistStats(result.risk_level);
+                            const completedCount = checklist.filter(item => checkedItems[item.id]).length;
+                            const progressPercent = checklist.length > 0 ? (completedCount / checklist.length) * 100 : 0;
+                            
+                            return (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.25 }}
+                                >
+                                    <Card className="border-0 shadow-xl overflow-hidden">
+                                        <CardHeader className="border-b border-border bg-gradient-to-br from-primary/10 to-accent/10">
+                                            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                                                <div>
+                                                    <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                                                        <FileCheck className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+                                                        {t.common.complianceChecklist}
+                                                    </CardTitle>
+                                                    <CardDescription className="text-xs sm:text-sm mt-1">
+                                                        {locale === 'fr' 
+                                                            ? `Actions requises pour un niveau ${result.risk_level}` 
+                                                            : `Required actions for ${result.risk_level}`}
+                                                    </CardDescription>
+                                                </div>
+                                                <div className="text-right">
+                                                    <div className="text-2xl font-bold text-foreground">
+                                                        {completedCount}/{checklist.length}
+                                                    </div>
+                                                    <div className="text-xs text-muted-foreground">
+                                                        {progressPercent.toFixed(0)}% {locale === 'fr' ? 'complété' : 'complete'}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {/* Progress Bar */}
+                                            <div className="mt-4">
+                                                <div className="w-full bg-secondary rounded-full h-2 overflow-hidden">
+                                                    <motion.div 
+                                                        className="h-full bg-gradient-to-r from-primary to-accent"
+                                                        initial={{ width: 0 }}
+                                                        animate={{ width: `${progressPercent}%` }}
+                                                        transition={{ duration: 0.5, delay: 0.3 }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent className="pt-6 space-y-3">
+                                            {checklist.map((item, i) => (
+                                                <motion.div
+                                                    key={item.id}
                                                     initial={{ opacity: 0, x: -20 }}
                                                     animate={{ opacity: 1, x: 0 }}
                                                     transition={{ delay: 0.3 + i * 0.05 }}
-                                                    className="flex items-start sm:items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5 group"
                                                 >
-                                                    <div className="mt-0.5 bg-emerald-500/20 p-1 sm:p-1.5 rounded-full text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-colors shrink-0">
-                                                        <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                                                    </div>
-                                                    <span className="text-xs sm:text-sm text-white/90 leading-relaxed flex-1">{obit}</span>
-                                                    {articleNum && (
-                                                        <Button variant="ghost" size="sm" asChild className="shrink-0 text-white/60 hover:text-white hover:bg-white/10 h-7 w-7 sm:h-8 sm:w-8 p-0 rounded-full">
-                                                            <Link href={link} target="_blank" title={locale === 'fr' ? "Lire l'article" : "Read article"}>
-                                                                <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4" />
-                                                            </Link>
-                                                        </Button>
-                                                    )}
-                                                </motion.li>
-                                            )
-                                        })}
-                                    </ul>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
+                                                    <ChecklistItemComponent
+                                                        item={item}
+                                                        checked={checkedItems[item.id] || false}
+                                                        onToggle={handleChecklistToggle}
+                                                    />
+                                                </motion.div>
+                                            ))}
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+                            );
+                        })()}
 
                         {/* CTA */}
                         <motion.div

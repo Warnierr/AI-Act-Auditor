@@ -38,6 +38,8 @@ import {
 import { assessSystem } from "@/lib/api"
 import { AISystemInput } from "@/types"
 import { useTranslation } from "@/lib/LanguageContext"
+import { validateStep1, validateStep2, validateStep3, validateAll } from "@/lib/validation"
+import { FormError } from "@/components/ui/form-error"
 
 const steps = [
     { id: 1, icon: Laptop },

@@ -55,3 +55,11 @@ export interface AnalysisResult {
     obligations: string[];
     next_steps: string[];
 }
+
+export interface AuditHistory {
+    id: string;
+    timestamp: number;
+    input: AISystemInput;
+    result: AnalysisResult;
+    savedDate: string;
+}
