@@ -55,6 +55,18 @@ export default function ResultsPage() {
     const router = useRouter()
     const advisorRef = useRef<HTMLDivElement>(null)
 
+    // Translate risk level based on locale
+    const translateRiskLevel = (level: RiskLevel | string): string => {
+        const lvl = level.toLowerCase()
+        if (locale === 'fr') {
+            if (lvl.includes('prohib')) return 'Interdit'
+            if (lvl.includes('high')) return 'Haut Risque'
+            if (lvl.includes('limited')) return 'Risque Limité'
+            if (lvl.includes('minimal')) return 'Risque Minimal'
+        }
+        return level as string
+    }
+
     useEffect(() => {
         const storedResult = localStorage.getItem("auditResult")
         const storedInput = localStorage.getItem("auditInput")
@@ -84,7 +96,7 @@ export default function ResultsPage() {
     // Load and save checklist progress from/to localStorage
     useEffect(() => {
         if (!result) return;
-        
+
         const storageKey = `checklist_${result.risk_level}`;
         const stored = localStorage.getItem(storageKey);
         if (stored) {
@@ -98,10 +110,10 @@ export default function ResultsPage() {
 
     const handleChecklistToggle = (itemId: string, checked: boolean) => {
         if (!result) return;
-        
+
         const newCheckedItems = { ...checkedItems, [itemId]: checked };
         setCheckedItems(newCheckedItems);
-        
+
         // Save to localStorage
         const storageKey = `checklist_${result.risk_level}`;
         localStorage.setItem(storageKey, JSON.stringify(newCheckedItems));
@@ -110,14 +122,14 @@ export default function ResultsPage() {
     const handleDownload = async () => {
         if (!inputData) return;
         setDownloading(true);
-        
+
         const fileName = `AI_Risk_Report_${inputData.name.replace(/\s+/g, '_')}.pdf`;
         const toastId = toast.loading(
-            locale === 'fr' 
-                ? 'Génération du rapport PDF...' 
+            locale === 'fr'
+                ? 'Génération du rapport PDF...'
                 : 'Generating PDF report...'
         );
-        
+
         try {
             const blob = await exportReport(inputData);
             const url = window.URL.createObjectURL(blob);
@@ -128,10 +140,10 @@ export default function ResultsPage() {
             a.click();
             a.remove();
             window.URL.revokeObjectURL(url);
-            
+
             toast.success(
-                locale === 'fr' 
-                    ? `Rapport téléchargé : ${fileName}` 
+                locale === 'fr'
+                    ? `Rapport téléchargé : ${fileName}`
                     : `Report downloaded: ${fileName}`,
                 { id: toastId, duration: 5000 }
             );
@@ -139,8 +151,8 @@ export default function ResultsPage() {
             console.error(e);
             const errorMsg = e instanceof Error ? e.message : 'Unknown error';
             toast.error(
-                locale === 'fr' 
-                    ? `Erreur lors du téléchargement : ${errorMsg}` 
+                locale === 'fr'
+                    ? `Erreur lors du téléchargement : ${errorMsg}`
                     : `Download failed: ${errorMsg}`,
                 { id: toastId, duration: 7000 }
             );
@@ -151,20 +163,20 @@ export default function ResultsPage() {
 
     const handleSave = () => {
         if (!inputData || !result) return;
-        
+
         try {
             const id = saveAudit(inputData, result);
             setIsSaved(true);
             toast.success(
-                locale === 'fr' 
-                    ? 'Audit sauvegardé dans l\'historique' 
+                locale === 'fr'
+                    ? 'Audit sauvegardé dans l\'historique'
                     : 'Audit saved to history',
                 { duration: 3000 }
             );
         } catch (error) {
             toast.error(
-                locale === 'fr' 
-                    ? 'Erreur lors de la sauvegarde' 
+                locale === 'fr'
+                    ? 'Erreur lors de la sauvegarde'
                     : 'Failed to save audit'
             );
         }
@@ -174,18 +186,18 @@ export default function ResultsPage() {
         // Prepare document title for print
         const originalTitle = document.title;
         document.title = `AI_Act_Compliance_Report_${inputData?.name?.replace(/\s+/g, '_') || 'System'}`;
-        
+
         // Add print-specific classes
         document.body.classList.add('printing');
-        
+
         // Trigger print
         window.print();
-        
+
         // Restore original title and cleanup
         document.title = originalTitle;
         document.body.classList.remove('printing');
     };
-    
+
     const handleShare = async () => {
         const shareData = {
             title: 'AI Act Auditor Assessment',
@@ -328,7 +340,7 @@ export default function ResultsPage() {
                                     {t.common.riskLevel}
                                 </p>
                                 <h1 className="text-2xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight mb-2 sm:mb-4">
-                                    {result.risk_level}
+                                    {translateRiskLevel(result.risk_level)}
                                 </h1>
                                 <p className="text-white/90 text-sm sm:text-base md:text-lg max-w-xl">
                                     {config.description}
@@ -352,13 +364,13 @@ export default function ResultsPage() {
                     <Alert className="border-amber-200 bg-amber-50/50 dark:bg-amber-900/10">
                         <Bot className="h-4 w-4 text-amber-600" />
                         <AlertTitle className="text-amber-900 dark:text-amber-100 font-semibold">
-                            {locale === 'fr' 
-                                ? '💡 Validez votre classification avec l\'IA' 
+                            {locale === 'fr'
+                                ? '💡 Validez votre classification avec l\'IA'
                                 : '💡 Validate your classification with AI'}
                         </AlertTitle>
                         <AlertDescription className="text-amber-800 dark:text-amber-200">
-                            {locale === 'fr' 
-                                ? 'Notre conseiller IA peut analyser votre système de manière plus approfondie et identifier des risques potentiels que l\'évaluation automatique pourrait avoir manqués. Consultez la section "Conseiller IA" ci-dessous pour une analyse critique.' 
+                            {locale === 'fr'
+                                ? 'Notre conseiller IA peut analyser votre système de manière plus approfondie et identifier des risques potentiels que l\'évaluation automatique pourrait avoir manqués. Consultez la section "Conseiller IA" ci-dessous pour une analyse critique.'
                                 : 'Our AI advisor can analyze your system more deeply and identify potential risks that the automated assessment might have missed. Check the "AI Advisor" section below for critical analysis.'}
                         </AlertDescription>
                     </Alert>
@@ -396,13 +408,13 @@ export default function ResultsPage() {
                                         <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-wider mb-2 block">{locale === 'fr' ? 'Indicateurs' : 'Indicators'}</label>
                                         <div className="flex flex-wrap gap-2">
                                             <Badge variant={inputData?.is_biometric ? "default" : "outline"} className={inputData?.is_biometric ? "bg-purple-600" : ""}>
-                                                Bio
+                                                {locale === 'fr' ? 'Bio' : 'Bio'}
                                             </Badge>
                                             <Badge variant={inputData?.is_critical_infrastructure ? "default" : "outline"} className={inputData?.is_critical_infrastructure ? "bg-orange-600" : ""}>
-                                                Infra
+                                                {locale === 'fr' ? 'Infra' : 'Infra'}
                                             </Badge>
                                             <Badge variant={inputData?.is_safety_component ? "default" : "outline"} className={inputData?.is_safety_component ? "bg-emerald-600" : ""}>
-                                                Safety
+                                                {locale === 'fr' ? 'Sécurité' : 'Safety'}
                                             </Badge>
                                         </div>
                                     </div>
@@ -417,9 +429,9 @@ export default function ResultsPage() {
                             transition={{ delay: 0.2 }}
                             className="space-y-2 sm:space-y-3"
                         >
-                            <Button 
-                                variant={isSaved ? "default" : "outline"} 
-                                className="w-full justify-start h-10 sm:h-12 text-xs sm:text-sm" 
+                            <Button
+                                variant={isSaved ? "default" : "outline"}
+                                className="w-full justify-start h-10 sm:h-12 text-xs sm:text-sm"
                                 onClick={handleSave}
                                 disabled={isSaved}
                             >
@@ -512,7 +524,7 @@ export default function ResultsPage() {
                             const stats = getChecklistStats(result.risk_level);
                             const completedCount = checklist.filter(item => checkedItems[item.id]).length;
                             const progressPercent = checklist.length > 0 ? (completedCount / checklist.length) * 100 : 0;
-                            
+
                             return (
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
@@ -528,8 +540,8 @@ export default function ResultsPage() {
                                                         {t.common.complianceChecklist}
                                                     </CardTitle>
                                                     <CardDescription className="text-xs sm:text-sm mt-1">
-                                                        {locale === 'fr' 
-                                                            ? `Actions requises pour un niveau ${result.risk_level}` 
+                                                        {locale === 'fr'
+                                                            ? `Actions requises pour un niveau ${translateRiskLevel(result.risk_level)}`
                                                             : `Required actions for ${result.risk_level}`}
                                                     </CardDescription>
                                                 </div>
@@ -545,7 +557,7 @@ export default function ResultsPage() {
                                             {/* Progress Bar */}
                                             <div className="mt-4">
                                                 <div className="w-full bg-secondary rounded-full h-2 overflow-hidden">
-                                                    <motion.div 
+                                                    <motion.div
                                                         className="h-full bg-gradient-to-r from-primary to-accent"
                                                         initial={{ width: 0 }}
                                                         animate={{ width: `${progressPercent}%` }}
@@ -650,15 +662,15 @@ export default function ResultsPage() {
                         <h1 className="text-4xl font-bold text-primary">EU AI Act Compliance Audit</h1>
                         <div className="text-2xl font-semibold">{inputData?.name}</div>
                         <div className="text-sm text-muted-foreground print-date">
-                            Report Generated: {new Date().toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US', { 
-                                year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+                            Report Generated: {new Date().toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US', {
+                                year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
                             })}
                         </div>
                         <div className="text-lg">
                             <strong>Reference:</strong> Regulation (EU) 2024/1689
                         </div>
                     </div>
-                    
+
                     {/* Legal References Section */}
                     <div className="print-keep-together">
                         <h2 className="text-2xl font-bold mb-4">Legal Framework</h2>
@@ -672,7 +684,7 @@ export default function ResultsPage() {
                             <strong>Annotated Version:</strong> artificialintelligenceact.eu
                         </div>
                     </div>
-                    
+
                     {/* Key Articles Reference Table */}
                     {result.risk_level.toLowerCase().includes('high') && (
                         <div className="print-keep-together">
@@ -725,7 +737,7 @@ export default function ResultsPage() {
                             </table>
                         </div>
                     )}
-                    
+
                     {/* Implementation Timeline */}
                     <div className="print-keep-together">
                         <h2 className="text-2xl font-bold mb-4">Implementation Timeline</h2>
@@ -748,7 +760,7 @@ export default function ResultsPage() {
                             </div>
                         </div>
                     </div>
-                    
+
                     {/* Key Definitions */}
                     <div className="print-keep-together">
                         <h2 className="text-2xl font-bold mb-4">Key Definitions</h2>
@@ -759,7 +771,7 @@ export default function ResultsPage() {
                             <p><strong>High-Risk AI System:</strong> AI system listed in Annex III or subject to product safety legislation listed in Annex I (Article 6)</p>
                         </div>
                     </div>
-                    
+
                     {/* Legal Disclaimer */}
                     <div className="print-keep-together">
                         <h2 className="text-2xl font-bold mb-4">⚖️ Legal Disclaimer</h2>
@@ -774,7 +786,7 @@ export default function ResultsPage() {
                             <p><strong>Recommendation:</strong> Engage with legal experts, conformity assessment bodies, and your national AI authority for definitive guidance specific to your use case.</p>
                         </div>
                     </div>
-                    
+
                     {/* Resources */}
                     <div className="print-keep-together">
                         <h2 className="text-2xl font-bold mb-4">Additional Resources</h2>
